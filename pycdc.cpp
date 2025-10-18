@@ -23,13 +23,13 @@ int main(int argc, char* argv[])
                 const char* filename = argv[++arg];
                 out_file.open(filename, std::ios_base::out);
                 if (out_file.fail()) {
-                    fprintf(stderr, "Error opening file '%s' for writing\n",
+                    fprintf(stderr, "错误：打开文件 '%s' 写入失败\n",
                             filename);
                     return 1;
                 }
                 pyc_output = &out_file;
             } else {
-                fputs("Option '-o' requires a filename\n", stderr);
+                fputs("选项 '-o' 需要指定文件名\n", stderr);
                 return 1;
             }
         } else if (strcmp(argv[arg], "-c") == 0) {
@@ -38,16 +38,16 @@ int main(int argc, char* argv[])
             if (arg + 1 < argc) {
                 version = argv[++arg];
             } else {
-                fputs("Option '-v' requires a version\n", stderr);
+                fputs("选项 '-v' 需要指定版本号\n", stderr);
                 return 1;
             }
         } else if (strcmp(argv[arg], "--help") == 0 || strcmp(argv[arg], "-h") == 0) {
-            fprintf(stderr, "Usage:  %s [options] input.pyc\n\n", argv[0]);
-            fputs("Options:\n", stderr);
-            fputs("  -o <filename>  Write output to <filename> (default: stdout)\n", stderr);
-            fputs("  -c             Specify loading a compiled code object. Requires the version to be set\n", stderr);
-            fputs("  -v <x.y>       Specify a Python version for loading a compiled code object\n", stderr);
-            fputs("  --help         Show this help text and then exit\n", stderr);
+            fprintf(stderr, "用法：%s [选项] 输入文件.pyc\n\n", argv[0]);
+            fputs("选项：\n", stderr);
+            fputs("  -o <文件名>    将输出写入到<文件名> (默认：标准输出)\n", stderr);
+            fputs("  -c             指定加载编译的代码对象。需要设置版本号\n", stderr);
+            fputs("  -v <x.y>       指定Python版本用于加载编译的代码对象\n", stderr);
+            fputs("  --help         显示此帮助信息并退出\n", stderr);
             return 0;
         } else {
             infile = argv[arg];
@@ -55,7 +55,7 @@ int main(int argc, char* argv[])
     }
 
     if (!infile) {
-        fputs("No input file specified\n", stderr);
+        fputs("未指定输入文件\n", stderr);
         return 1;
     }
 
@@ -64,18 +64,18 @@ int main(int argc, char* argv[])
         try {
             mod.loadFromFile(infile);
         } catch (std::exception& ex) {
-            fprintf(stderr, "Error loading file %s: %s\n", infile, ex.what());
+            fprintf(stderr, "加载文件 %s 时出错：%s\n", infile, ex.what());
             return 1;
         }
     } else {
         if (!version) {
-            fputs("Opening raw code objects requires a version to be specified\n", stderr);
+            fputs("打开原始代码对象需要指定版本号\n", stderr);
             return 1;
         }
         std::string s(version);
         auto dot = s.find('.');
         if (dot == std::string::npos || dot == s.size()-1) {
-            fputs("Unable to parse version string (use the format x.y)\n", stderr);
+            fputs("无法解析版本字符串 (请使用 x.y 格式)\n", stderr);
             return 1;
         }
         int major = std::stoi(s.substr(0, dot));
@@ -84,19 +84,19 @@ int main(int argc, char* argv[])
     }
 
     if (!mod.isValid()) {
-        fprintf(stderr, "Could not load file %s\n", infile);
+        fprintf(stderr, "无法加载文件 %s\n", infile);
         return 1;
     }
     const char* dispname = strrchr(infile, PATHSEP);
     dispname = (dispname == NULL) ? infile : dispname + 1;
-    *pyc_output << "# Source Generated with Decompyle++\n";
-    formatted_print(*pyc_output, "# File: %s (Python %d.%d%s)\n\n", dispname,
+    *pyc_output << "# 源代码由 Decompyle++ 生成\n";
+    formatted_print(*pyc_output, "# 文件：%s (Python %d.%d%s)\n\n", dispname,
                     mod.majorVer(), mod.minorVer(),
                     (mod.majorVer() < 3 && mod.isUnicode()) ? " Unicode" : "");
     try {
         decompyle(mod.code(), &mod, *pyc_output);
     } catch (std::exception& ex) {
-        fprintf(stderr, "Error decompyling %s: %s\n", infile, ex.what());
+        fprintf(stderr, "反编译 %s 时出错：%s\n", infile, ex.what());
         return 1;
     }
 
