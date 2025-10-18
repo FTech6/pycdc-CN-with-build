@@ -1,7 +1,76 @@
 #include "data.h"
-#include <cstring>
 #include <cstdarg>
-#include <vector>
+#include <cstdio>
+#include <cstring>
+#include <windows.h>
+
+// 添加编码转换函数
+namespace {
+
+std::string toUTF8(const std::string& str) {
+    if (str.empty()) return str;
+    
+    // 检测是否为合法 UTF-8
+    int length = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, str.c_str(), -1, nullptr, 0);
+    if (length > 0) {
+        return str; // 已经是 UTF-8
+    }
+    
+    // 尝试 GB18030 转换
+    int wlen = MultiByteToWideChar(54936, 0, str.c_str(), -1, nullptr, 0);
+    if (wlen > 0) {
+        wchar_t* wbuf = new wchar_t[wlen];
+        if (MultiByteToWideChar(54936, 0, str.c_str(), -1, wbuf, wlen) > 0) {
+            int utf8len = WideCharToMultiByte(CP_UTF8, 0, wbuf, -1, nullptr, 0, nullptr, nullptr);
+            if (utf8len > 0) {
+                char* utf8buf = new char[utf8len];
+                if (WideCharToMultiByte(CP_UTF8, 0, wbuf, -1, utf8buf, utf8len, nullptr, nullptr) > 0) {
+                    std::string result(utf8buf);
+                    delete[] utf8buf;
+                    delete[] wbuf;
+                    return result;
+                }
+                delete[] utf8buf;
+            }
+        }
+        delete[] wbuf;
+    }
+    
+    // 尝试 GBK
+    wlen = MultiByteToWideChar(936, 0, str.c_str(), -1, nullptr, 0);
+    if (wlen > 0) {
+        wchar_t* wbuf = new wchar_t[wlen];
+        if (MultiByteToWideChar(936, 0, str.c_str(), -1, wbuf, wlen) > 0) {
+            int utf8len = WideCharToMultiByte(CP_UTF8, 0, wbuf, -1, nullptr, 0, nullptr, nullptr);
+            if (utf8len > 0) {
+                char* utf8buf = new char[utf8len];
+                if (WideCharToMultiByte(CP_UTF8, 0, wbuf, -1, utf8buf, utf8len, nullptr, nullptr) > 0) {
+                    std::string result(utf8buf);
+                    delete[] utf8buf;
+                    delete[] wbuf;
+                    return result;
+                }
+                delete[] utf8buf;
+            }
+        }
+        delete[] wbuf;
+    }
+    
+    // 回退到 Latin-1 保真转换
+    std::string result;
+    for (unsigned char c : str) {
+        if (c <= 0x7F) {
+            result += c;
+        } else {
+            result += static_cast<char>(0xC0 | (c >> 6));
+            result += static_cast<char>(0x80 | (c & 0x3F));
+        }
+    }
+    return result;
+}
+
+} // namespace
+
 
 /* PycData */
 int PycData::get16()
@@ -103,16 +172,17 @@ int formatted_print(std::ostream& stream, const char* format, ...)
 
 int formatted_printv(std::ostream& stream, const char* format, va_list args)
 {
-    va_list saved_args;
-    va_copy(saved_args, args);
-    int len = std::vsnprintf(nullptr, 0, format, args);
-    if (len < 0)
-        return len;
-    std::vector<char> vec(static_cast<size_t>(len) + 1);
-    int written = std::vsnprintf(&vec[0], vec.size(), format, saved_args);
-    va_end(saved_args);
-
-    if (written >= 0)
-        stream << &vec[0];
-    return written;
+    char buffer[4096];
+    int result = vsnprintf(buffer, sizeof(buffer), format, args);
+    
+    if (result >= 0) {
+        // 对输出进行编码转换
+        std::string converted = toUTF8(buffer);
+        stream << converted;
+    } else {
+        // 如果格式化失败，直接输出原始格式字符串（进行编码转换）
+        stream << toUTF8(format);
+    }
+    
+    return result;
 }
