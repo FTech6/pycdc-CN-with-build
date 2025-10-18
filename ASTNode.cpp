@@ -4,13 +4,16 @@
 /* ASTNodeList */
 void ASTNodeList::removeLast()
 {
+    // 获取列表的最后一个元素的迭代器
     list_t::iterator it = m_nodes.end();
     --it;
+    // 删除最后一个元素
     m_nodes.erase(it);
 }
 
 void ASTNodeList::removeFirst()
 {
+    // 删除第一个元素
     m_nodes.erase(m_nodes.begin());
 }
 
@@ -18,9 +21,11 @@ void ASTNodeList::removeFirst()
 /* ASTUnary */
 const char* ASTUnary::op_str() const
 {
+    // 定义单目运算符的字符串表示
     static const char* s_op_strings[] = {
         "+", "-", "~", "not "
     };
+    // 返回对应的运算符字符串
     return s_op_strings[op()];
 }
 
@@ -28,18 +33,20 @@ const char* ASTUnary::op_str() const
 /* ASTBinary */
 const char* ASTBinary::op_str() const
 {
+    // 定义双目运算符的字符串表示
     static const char* s_op_strings[] = {
         ".", " ** ", " * ", " / ", " // ", " % ", " + ", " - ",
         " << ", " >> ", " & ", " ^ ", " | ", " and ", " or ", " @ ",
         " += ", " -= ", " *= ", " /= ", " %= ", " **= ", " <<= ",
         " >>= ", " &= ", " ^= ", " |= ", " //= ", " @= ", " <INVALID> "
-
     };
+    // 返回对应的运算符字符串
     return s_op_strings[op()];
 }
 
 ASTBinary::BinOp ASTBinary::from_opcode(int opcode)
 {
+    // 根据操作码返回对应的双目运算符
     switch (opcode) {
     case Pyc::BINARY_ADD:
         return BIN_ADD;
@@ -98,12 +105,13 @@ ASTBinary::BinOp ASTBinary::from_opcode(int opcode)
     case Pyc::INPLACE_MATRIX_MULTIPLY:
         return BIN_IP_MAT_MULTIPLY;
     default:
-        return BIN_INVALID;
+        return BIN_INVALID; // 如果操作码无效，返回无效的运算符
     }
 }
 
 ASTBinary::BinOp ASTBinary::from_binary_op(int operand)
 {
+    // 根据操作数返回对应的双目运算符
     switch (operand) {
     case 0:
         return BIN_ADD;
@@ -158,7 +166,7 @@ ASTBinary::BinOp ASTBinary::from_binary_op(int operand)
     case 25:
         return BIN_IP_XOR;
     default:
-        return BIN_INVALID; // Return BIN_INVALID for out-of-range operand
+        return BIN_INVALID; // 如果操作数超出范围，返回无效的运算符
     }
 }
 
@@ -166,10 +174,12 @@ ASTBinary::BinOp ASTBinary::from_binary_op(int operand)
 /* ASTCompare */
 const char* ASTCompare::op_str() const
 {
+    // 定义比较运算符的字符串表示
     static const char* s_cmp_strings[] = {
         " < ", " <= ", " == ", " != ", " > ", " >= ", " in ", " not in ", " is ", " is not ",
         "<EXCEPTION MATCH>", "<BAD>"
     };
+    // 返回对应的比较运算符字符串
     return s_cmp_strings[op()];
 }
 
@@ -177,9 +187,11 @@ const char* ASTCompare::op_str() const
 /* ASTKeyword */
 const char* ASTKeyword::word_str() const
 {
+    // 定义关键字的字符串表示
     static const char* s_word_strings[] = {
         "pass", "break", "continue"
     };
+    // 返回对应的关键字字符串
     return s_word_strings[key()];
 }
 
@@ -187,21 +199,26 @@ const char* ASTKeyword::word_str() const
 /* ASTBlock */
 void ASTBlock::removeLast()
 {
+    // 获取块的最后一个元素的迭代器
     list_t::iterator it = m_nodes.end();
     --it;
+    // 删除最后一个元素
     m_nodes.erase(it);
 }
 
 void ASTBlock::removeFirst()
 {
+    // 删除第一个元素
     m_nodes.erase(m_nodes.begin());
 }
 
 const char* ASTBlock::type_str() const
 {
+    // 定义块类型的字符串表示
     static const char* s_type_strings[] = {
         "", "if", "else", "elif", "try", "CONTAINER", "except",
         "finally", "while", "for", "with", "async for"
     };
+    // 返回对应的块类型字符串
     return s_type_strings[blktype()];
 }

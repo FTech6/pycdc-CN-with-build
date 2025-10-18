@@ -4,39 +4,39 @@
 #include "ASTree.h"
 
 #ifdef WIN32
-#  define PATHSEP '\\'
+#  define PATHSEP '\\'  // Windows 路径分隔符
 #else
-#  define PATHSEP '/'
+#  define PATHSEP '/'   // Unix/Linux 路径分隔符
 #endif
 
 int main(int argc, char* argv[])
 {
-    const char* infile = nullptr;
-    bool marshalled = false;
-    const char* version = nullptr;
-    std::ostream* pyc_output = &std::cout;
-    std::ofstream out_file;
+    const char* infile = nullptr;      // 输入文件路径
+    bool marshalled = false;           // 是否加载编译的代码对象
+    const char* version = nullptr;     // Python 版本号
+    std::ostream* pyc_output = &std::cout;  // 输出流，默认为标准输出
+    std::ofstream out_file;            // 文件输出流
 
     for (int arg = 1; arg < argc; ++arg) {
         if (strcmp(argv[arg], "-o") == 0) {
             if (arg + 1 < argc) {
-                const char* filename = argv[++arg];
-                out_file.open(filename, std::ios_base::out);
+                const char* filename = argv[++arg];  // 获取输出文件名
+                out_file.open(filename, std::ios_base::out);  // 打开文件
                 if (out_file.fail()) {
                     fprintf(stderr, "错误：打开文件 '%s' 写入失败\n",
                             filename);
                     return 1;
                 }
-                pyc_output = &out_file;
+                pyc_output = &out_file;  // 将输出流指向文件
             } else {
                 fputs("选项 '-o' 需要指定文件名\n", stderr);
                 return 1;
             }
         } else if (strcmp(argv[arg], "-c") == 0) {
-            marshalled = true;
+            marshalled = true;  // 标记为加载编译的代码对象
         } else if (strcmp(argv[arg], "-v") == 0) {
             if (arg + 1 < argc) {
-                version = argv[++arg];
+                version = argv[++arg];  // 获取 Python 版本号
             } else {
                 fputs("选项 '-v' 需要指定版本号\n", stderr);
                 return 1;

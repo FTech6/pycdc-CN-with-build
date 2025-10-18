@@ -7,12 +7,12 @@
 #include "pyc_numeric.h"
 #include "bytecode.h"
 
-// This must be a triple quote (''' or """), to handle interpolated string literals containing the opposite quote style.
-// E.g. f'''{"interpolated "123' literal"}'''    -> valid.
-// E.g. f"""{"interpolated "123' literal"}"""    -> valid.
-// E.g. f'{"interpolated "123' literal"}'        -> invalid, unescaped quotes in literal.
-// E.g. f'{"interpolated \"123\' literal"}'      -> invalid, f-string expression does not allow backslash.
-// NOTE: Nested f-strings not supported.
+// 必须使用三引号（''' 或 """），以处理包含相反引号风格的插值字符串字面量。
+// 示例：f'''{"interpolated "123' literal"}'''    -> 有效。
+// 示例：f"""{"interpolated "123' literal"}"""    -> 有效。
+// 示例：f'{"interpolated "123' literal"}'        -> 无效，字面量中未转义的引号。
+// 示例：f'{"interpolated \"123\' literal"}'      -> 无效，f-string 表达式不允许反斜杠。
+// 注意：不支持嵌套的 f-string。
 #define F_STRING_QUOTE "'''"
 
 static void append_to_chain_store(const PycRef<ASTNode>& chainStore,
