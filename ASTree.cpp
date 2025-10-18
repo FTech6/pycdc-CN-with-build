@@ -8,31 +8,29 @@
 #include "bytecode.h"
 
 // 必须使用三引号（''' 或 """），以处理包含相反引号风格的插值字符串字面量。
-// 示例：f'''{"interpolated "123' literal"}'''    -> 有效。
-// 示例：f"""{"interpolated "123' literal"}"""    -> 有效。
-// 示例：f'{"interpolated "123' literal"}'        -> 无效，字面量中未转义的引号。
-// 示例：f'{"interpolated \"123\' literal"}'      -> 无效，f-string 表达式不允许反斜杠。
+// 示例：f'''{"插值的 '123' 字面量"}'''    -> 有效。
+// 示例：f"""{"插值的 '123' 字面量"}"""    -> 有效。
+// 示例：f'{"插值的 '123' 字面量"}'        -> 无效，字面量中未转义的引号。
+// 示例：f'{"插值的 \"123\' 字面量"}'      -> 无效，f-string 表达式不允许反斜杠。
 // 注意：不支持嵌套的 f-string。
 #define F_STRING_QUOTE "'''"
 
 static void append_to_chain_store(const PycRef<ASTNode>& chainStore,
         PycRef<ASTNode> item, FastStack& stack, const PycRef<ASTBlock>& curblock);
 
-/* Use this to determine if an error occurred (and therefore, if we should
- * avoid cleaning the output tree) */
+/* 使用此变量来确定是否发生错误（以及因此是否应避免清理输出树） */
 static bool cleanBuild;
 
-/* Use this to prevent printing return keywords and newlines in lambdas. */
+/* 使用此变量来禁止在 lambda 中打印 return 关键字和换行符。 */
 static bool inLambda = false;
 
-/* Use this to keep track of whether we need to print out any docstring and
- * the list of global variables that we are using (such as inside a function). */
+/* 使用此变量来跟踪是否需要打印任何文档字符串和我们正在使用的全局变量列表（例如在函数内部）。 */
 static bool printDocstringAndGlobals = false;
 
-/* Use this to keep track of whether we need to print a class or module docstring */
+/* 使用此变量来跟踪是否需要打印类或模块文档字符串 */
 static bool printClassDocstring = true;
 
-// shortcut for all top/pop calls
+// 所有 top/pop 调用的快捷方式
 static PycRef<ASTNode> StackPopTop(FastStack& stack)
 {
     const auto node(stack.top());
@@ -40,15 +38,15 @@ static PycRef<ASTNode> StackPopTop(FastStack& stack)
     return node;
 }
 
-/* compiler generates very, VERY similar byte code for if/else statement block and if-expression
- *  statement
+/* 编译器为 if/else 语句块和 if 表达式生成非常、非常相似的字节码
+ *  语句：
  *      if a: b = 1
  *      else: b = 2
- *  expression:
+ *  表达式：
  *      b = 1 if a else 2
- *  (see for instance https://stackoverflow.com/a/52202007)
- *  here, try to guess if just finished else statement is part of if-expression (ternary operator)
- *  if it is, remove statements from the block and put a ternary node on top of stack
+ *  （例如参见 https://stackoverflow.com/a/52202007）
+ *  这里，尝试猜测刚结束的 else 语句是否是 if 表达式（三元运算符）的一部分
+ *  如果是，则从块中移除语句并将三元节点压入栈顶
  */
 static void CheckIfExpr(FastStack& stack, PycRef<ASTBlock> curblock)
 {
@@ -57,7 +55,7 @@ static void CheckIfExpr(FastStack& stack, PycRef<ASTBlock> curblock)
     if (curblock->nodes().size() < 2)
         return;
     auto rit = curblock->nodes().crbegin();
-    // the last is "else" block, the one before should be "if" (could be "for", ...)
+    // 最后一个是 "else" 块，前一个应该是 "if"（可能是 "for", ...）
     if ((*rit)->type() != ASTNode::NODE_BLOCK ||
         (*rit).cast<ASTBlock>()->blktype() != ASTBlock::BLK_ELSE)
         return;
@@ -114,7 +112,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
         if (need_try && opcode != Pyc::SETUP_EXCEPT_A) {
             need_try = false;
 
-            /* Store the current stack for the except/finally statement(s) */
+            /* 为 except/finally 语句存储当前栈 */
             stack_hist.push(stack);
             PycRef<ASTBlock> tryblock = new ASTBlock(ASTBlock::BLK_TRY, curblock->end(), true);
             blocks.push(tryblock);
@@ -140,8 +138,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                         break;
                     }
 
-                    /* We want to keep the stack the same, but we need to pop
-                     * a level off the history. */
+                    /* 我们希望保持栈不变，但需要从历史记录中弹出一级。 */
                     //stack = stack_hist.top();
                     if (!stack_hist.empty())
                         stack_hist.pop();
@@ -165,7 +162,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
             {
                 ASTBinary::BinOp op = ASTBinary::from_binary_op(operand);
                 if (op == ASTBinary::BIN_INVALID)
-                    fprintf(stderr, "Unsupported `BINARY_OP` operand value: %d\n", operand);
+                    fprintf(stderr, "不支持的 `BINARY_OP` 操作数值: %d\n", operand);
                 PycRef<ASTNode> right = stack.top();
                 stack.pop();
                 PycRef<ASTNode> left = stack.top();
@@ -204,7 +201,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
             {
                 ASTBinary::BinOp op = ASTBinary::from_opcode(opcode);
                 if (op == ASTBinary::BIN_INVALID)
-                    throw std::runtime_error("Unhandled opcode from ASTBinary::from_opcode");
+                    throw std::runtime_error("ASTBinary::from_opcode 返回未处理的操作码");
                 PycRef<ASTNode> right = stack.top();
                 stack.pop();
                 PycRef<ASTNode> left = stack.top();
@@ -281,8 +278,8 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
             }
             break;
         case Pyc::BUILD_CONST_KEY_MAP_A:
-            // Top of stack will be a tuple of keys.
-            // Values will start at TOS - 1.
+            // 栈顶将是一个键的元组。
+            // 值将从 TOS - 1 开始。
             {
                 PycRef<ASTNode> keys = stack.top();
                 stack.pop();
@@ -358,7 +355,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                         step = NULL;
                     }
 
-                    /* We have to do this as a slice where one side is another slice */
+                    /* 我们必须将其作为一个切片来处理，其中一边是另一个切片 */
                     /* [[a:b]:c] */
 
                     if (start == NULL && end == NULL) {
@@ -384,7 +381,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
             break;
         case Pyc::BUILD_STRING_A:
             {
-                // Nearly identical logic to BUILD_LIST
+                // 逻辑与 BUILD_LIST 几乎相同
                 ASTList::value_t values;
                 for (int i = 0; i < operand; i++) {
                     values.push_front(stack.top());
@@ -395,7 +392,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
             break;
         case Pyc::BUILD_TUPLE_A:
             {
-                // if class is a closure code, ignore this tuple
+                // 如果类是一个闭包代码，忽略这个元组
                 PycRef<ASTNode> tos = stack.top();
                 if (tos && tos->type() == ASTNode::NODE_LOADBUILDCLASS) {
                     break;
@@ -432,14 +429,14 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                 ASTCall::kwparam_t kwparamList;
                 ASTCall::pparam_t pparamList;
 
-                /* Test for the load build class function */
+                /* 测试加载构建类的函数 */
                 stack_hist.push(stack);
                 int basecnt = 0;
                 ASTTuple::value_t bases;
                 bases.resize(basecnt);
                 PycRef<ASTNode> TOS = stack.top();
                 int TOS_type = TOS.type();
-                // bases are NODE_NAME and NODE_BINARY at TOS
+                // 基类是 TOS 处的 NODE_NAME 和 NODE_BINARY
                 while (TOS_type == ASTNode::NODE_NAME || TOS_type == ASTNode::NODE_BINARY) {
                     bases.resize(basecnt + 1);
                     bases[basecnt] = TOS;
@@ -448,7 +445,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                     TOS = stack.top();
                     TOS_type = TOS.type();
                 }
-                // qualified name is PycString at TOS
+                // 限定名称是 TOS 处的 PycString
                 PycRef<ASTNode> name = stack.top();
                 stack.pop();
                 PycRef<ASTNode> function = stack.top();
@@ -470,9 +467,9 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
 
                 /*
                 KW_NAMES(i)
-                    Stores a reference to co_consts[consti] into an internal variable for use by CALL.
-                    co_consts[consti] must be a tuple of strings.
-                    New in version 3.11.
+                    将对 co_consts[consti] 的引用存储到内部变量中供 CALL 使用。
+                    co_consts[consti] 必须是一个字符串元组。
+                    3.11 版新增。
                 */
                 if (mod->verCompare(3, 11) >= 0) {
                     PycRef<ASTNode> object_or_map = stack.top();
@@ -504,7 +501,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                         if (function_name->isEqual("<lambda>")) {
                             pparamList.push_front(param);
                         } else {
-                            // Decorator used
+                            // 使用了装饰器
                             PycRef<ASTNode> decor_name = new ASTName(function_name);
                             curblock->append(new ASTStore(param, decor_name));
 
@@ -621,7 +618,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                         if (function_name->isEqual("<lambda>")) {
                             pparamList.push_front(param);
                         } else {
-                            // Decorator used
+                            // 使用了装饰器
                             PycRef<ASTNode> decor_name = new ASTName(function_name);
                             curblock->append(new ASTStore(param, decor_name));
 
@@ -647,7 +644,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                 stack.pop();
                 auto arg = operand;
                 if (mod->verCompare(3, 12) == 0)
-                    arg >>= 4; // changed under GH-100923
+                    arg >>= 4; // 在 GH-100923 下更改
                 else if (mod->verCompare(3, 13) >= 0)
                     arg >>= 5;
                 stack.push(new ASTCompare(left, right, arg));
@@ -659,7 +656,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                 stack.pop();
                 PycRef<ASTNode> left = stack.top();
                 stack.pop();
-                // The operand will be 0 for 'in' and 1 for 'not in'.
+                // 操作数对于 'in' 为 0，对于 'not in' 为 1。
                 stack.push(new ASTCompare(left, right, operand ? ASTCompare::CMP_NOT_IN : ASTCompare::CMP_IN));
             }
             break;
@@ -672,14 +669,14 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
             break;
         case Pyc::DELETE_GLOBAL_A:
             code->markGlobal(code->getName(operand));
-            /* Fall through */
+            /* 穿透 */
         case Pyc::DELETE_NAME_A:
             {
                 PycRef<PycString> varname = code->getName(operand);
 
                 if (varname->length() >= 2 && varname->value()[0] == '_'
                         && varname->value()[1] == '[') {
-                    /* Don't show deletes that are a result of list comps. */
+                    /* 不显示列表推导式产生的删除。 */
                     break;
                 }
 
@@ -698,7 +695,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
 
                 if (name.cast<ASTName>()->name()->value()[0] == '_'
                         && name.cast<ASTName>()->name()->value()[1] == '[') {
-                    /* Don't show deletes that are a result of list comps. */
+                    /* 不显示列表推导式产生的删除。 */
                     break;
                 }
 
@@ -840,7 +837,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                             stack = stack_hist.top();
                             stack_hist.pop();
                             if (!curblock->inited())
-                                fprintf(stderr, "Error when decompiling 'async for'.\n");
+                                fprintf(stderr, "解编译 'async for' 时出错。\n");
                         } else {
                             blocks.push(container);
                         }
@@ -853,7 +850,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
 
                         curblock = blocks.top();
 
-                        /* Turn it into an else statement. */
+                        /* 将其转换为 else 语句。 */
                         if (curblock->end() != pos || curblock.cast<ASTContainerBlock>()->hasFinally()) {
                             PycRef<ASTBlock> elseblk = new ASTBlock(ASTBlock::BLK_ELSE, prev->end());
                             elseblk->init();
@@ -868,10 +865,10 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                 }
 
                 if (curblock->blktype() == ASTBlock::BLK_CONTAINER) {
-                    /* This marks the end of the except block(s). */
+                    /* 这标志着 except 块的结束。 */
                     PycRef<ASTContainerBlock> cont = curblock.cast<ASTContainerBlock>();
                     if (!cont->hasFinally() || isFinally) {
-                        /* If there's no finally block, pop the container. */
+                        /* 如果没有 finally 块，则弹出容器。 */
                         blocks.pop();
                         curblock = blocks.top();
                         curblock->append(cont.cast<ASTNode>());
@@ -897,19 +894,19 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
         case Pyc::FOR_ITER_A:
         case Pyc::INSTRUMENTED_FOR_ITER_A:
             {
-                PycRef<ASTNode> iter = stack.top(); // Iterable
+                PycRef<ASTNode> iter = stack.top(); // 可迭代对象
                 if (mod->verCompare(3, 12) < 0) {
-                    // Do not pop the iterator for py 3.12+
+                    // 对于 py 3.12+ 不要弹出迭代器
                     stack.pop();
                 }
-                /* Pop it? Don't pop it? */
+                /* 弹出它？不弹出它？ */
 
                 int end;
                 bool comprehension = false;
 
-                // before 3.8, there is a SETUP_LOOP instruction with block start and end position,
-                //    the operand is usually a jump to a POP_BLOCK instruction
-                // after 3.8, block extent has to be inferred implicitly; the operand is a jump to a position after the for block
+                // 在 3.8 之前，有一个 SETUP_LOOP 指令带有块的开始和结束位置，
+                //    操作数通常是跳转到 POP_BLOCK 指令
+                // 在 3.8 之后，块的范围必须隐式推断；操作数是跳转到 for 块之后的位置
                 if (mod->majorVer() == 3 && mod->minorVer() >= 8) {
                     end = operand;
                     if (mod->verCompare(3, 10) >= 0)
@@ -918,7 +915,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                     comprehension = strcmp(code->name()->value(), "<listcomp>") == 0;
                 } else {
                     PycRef<ASTBlock> top = blocks.top();
-                    end = top->end(); // block end position from SETUP_LOOP
+                    end = top->end(); // 来自 SETUP_LOOP 的块结束位置
                     if (top->blktype() == ASTBlock::BLK_WHILE) {
                         blocks.pop();
                     } else {
@@ -936,9 +933,9 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
             break;
         case Pyc::FOR_LOOP_A:
             {
-                PycRef<ASTNode> curidx = stack.top(); // Current index
+                PycRef<ASTNode> curidx = stack.top(); // 当前索引
                 stack.pop();
-                PycRef<ASTNode> iter = stack.top(); // Iterable
+                PycRef<ASTNode> iter = stack.top(); // 可迭代对象
                 stack.pop();
 
                 bool comprehension = false;
@@ -953,18 +950,17 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                 blocks.push(forblk.cast<ASTBlock>());
                 curblock = blocks.top();
 
-                /* Python Docs say:
-                      "push the sequence, the incremented counter,
-                       and the current item onto the stack." */
+                /* Python 文档说：
+                      "将序列、递增的计数器和当前项压入栈。" */
                 stack.push(iter);
                 stack.push(curidx);
-                stack.push(NULL); // We can totally hack this >_>
+                stack.push(NULL); // 我们可以完全 hack 这个 >_>
             }
             break;
         case Pyc::GET_AITER:
             {
-                // Logic similar to FOR_ITER_A
-                PycRef<ASTNode> iter = stack.top(); // Iterable
+                // 逻辑类似于 FOR_ITER_A
+                PycRef<ASTNode> iter = stack.top(); // 可迭代对象
                 stack.pop();
 
                 PycRef<ASTBlock> top = blocks.top();
@@ -975,7 +971,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                     curblock = blocks.top();
                     stack.push(nullptr);
                 } else {
-                     fprintf(stderr, "Unsupported use of GET_AITER outside of SETUP_LOOP\n");
+                     fprintf(stderr, "不支持在 SETUP_LOOP 之外使用 GET_AITER\n");
                 }
             }
             break;
@@ -1003,7 +999,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
             break;
         case Pyc::GET_ITER:
         case Pyc::GET_YIELD_FROM_ITER:
-            /* We just entirely ignore this */
+            /* 我们完全忽略这个 */
             break;
         case Pyc::IMPORT_NAME_A:
             if (mod->majorVer() == 1) {
@@ -1012,7 +1008,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                 PycRef<ASTNode> fromlist = stack.top();
                 stack.pop();
                 if (mod->verCompare(2, 5) >= 0)
-                    stack.pop();    // Level -- we don't care
+                    stack.pop();    // Level -- 我们不关心
                 stack.push(new ASTImport(new ASTName(code->getName(operand)), fromlist));
             }
             break;
@@ -1032,7 +1028,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                 stack.pop();
                 PycRef<ASTNode> left = stack.top();
                 stack.pop();
-                // The operand will be 0 for 'is' and 1 for 'is not'.
+                // 操作数对于 'is' 为 0，对于 'is not' 为 1。
                 stack.push(new ASTCompare(left, right, operand ? ASTCompare::CMP_IS_NOT : ASTCompare::CMP_IS));
             }
             break;
@@ -1057,22 +1053,22 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                         || opcode == Pyc::POP_JUMP_FORWARD_IF_TRUE_A
                         || opcode == Pyc::INSTRUMENTED_POP_JUMP_IF_FALSE_A
                         || opcode == Pyc::INSTRUMENTED_POP_JUMP_IF_TRUE_A) {
-                    /* Pop condition before the jump */
+                    /* 在跳转之前弹出条件 */
                     stack.pop();
                     popped = ASTCondBlock::PRE_POPPED;
                 }
 
-                /* Store the current stack for the else statement(s) */
+                /* 为 else 语句存储当前栈 */
                 stack_hist.push(stack);
 
                 if (opcode == Pyc::JUMP_IF_FALSE_OR_POP_A
                         || opcode == Pyc::JUMP_IF_TRUE_OR_POP_A) {
-                    /* Pop condition only if condition is met */
+                    /* 仅在条件满足时弹出条件 */
                     stack.pop();
                     popped = ASTCondBlock::POPPED;
                 }
 
-                /* "Jump if true" means "Jump if not false" */
+                /* "如果为真则跳转" 意味着 "如果不为假则跳转" */
                 bool neg = opcode == Pyc::JUMP_IF_TRUE_A
                         || opcode == Pyc::JUMP_IF_TRUE_OR_POP_A
                         || opcode == Pyc::POP_JUMP_IF_TRUE_A
@@ -1087,7 +1083,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                         || opcode == Pyc::JUMP_IF_TRUE_A
                         || opcode == Pyc::POP_JUMP_FORWARD_IF_TRUE_A
                         || opcode == Pyc::POP_JUMP_FORWARD_IF_FALSE_A) {
-                    /* Offset is relative in these cases */
+                    /* 在这些情况下偏移是相对的 */
                     offs += pos;
                 }
 
@@ -1104,19 +1100,19 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                     ifblk = new ASTCondBlock(ASTBlock::BLK_EXCEPT, offs, cond.cast<ASTCompare>()->right(), false);
                 } else if (curblock->blktype() == ASTBlock::BLK_ELSE
                            && curblock->size() == 0) {
-                    /* Collapse into elif statement */
+                    /* 折叠为 elif 语句 */
                     blocks.pop();
                     stack = stack_hist.top();
                     stack_hist.pop();
                     ifblk = new ASTCondBlock(ASTBlock::BLK_ELIF, offs, cond, neg);
                 } else if (curblock->size() == 0 && !curblock->inited()
                            && curblock->blktype() == ASTBlock::BLK_WHILE) {
-                    /* The condition for a while loop */
+                    /* while 循环的条件 */
                     PycRef<ASTBlock> top = blocks.top();
                     blocks.pop();
                     ifblk = new ASTCondBlock(top->blktype(), offs, cond, neg);
 
-                    /* We don't store the stack for loops! Pop it! */
+                    /* 我们不存储循环的栈！弹出它！ */
                     stack_hist.pop();
                 } else if (curblock->size() == 0 && curblock->end() <= offs
                            && (curblock->blktype() == ASTBlock::BLK_IF
@@ -1148,14 +1144,14 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                 } else if (curblock->blktype() == ASTBlock::BLK_FOR
                             && curblock.cast<ASTIterBlock>()->isComprehension()
                             && mod->verCompare(2, 7) >= 0) {
-                    /* Comprehension condition */
+                    /* 推导式条件 */
                     curblock.cast<ASTIterBlock>()->setCondition(cond);
                     stack_hist.pop();
-                    // TODO: Handle older python versions, where condition
-                    // is laid out a little differently.
+                    // TODO: 处理旧版本的 Python，其中条件
+                    // 的布局略有不同。
                     break;
                 } else {
-                    /* Plain old if statement */
+                    /* 普通的 if 语句 */
                     ifblk = new ASTCondBlock(ASTBlock::BLK_IF, offs, cond, neg);
                 }
 
@@ -1167,7 +1163,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
             }
             break;
         case Pyc::JUMP_ABSOLUTE_A:
-        // bpo-47120: Replaced JUMP_ABSOLUTE by the relative jump JUMP_BACKWARD.
+        // bpo-47120: 用相对跳转 JUMP_BACKWARD 替换了 JUMP_ABSOLUTE。
         case Pyc::JUMP_BACKWARD_A:
         case Pyc::JUMP_BACKWARD_NO_INTERRUPT_A:
             {
@@ -1179,7 +1175,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                     if (curblock->blktype() == ASTBlock::BLK_FOR) {
                         bool is_jump_to_start = offs == curblock.cast<ASTIterBlock>()->start();
                         bool should_pop_for_block = curblock.cast<ASTIterBlock>()->isComprehension();
-                        // in v3.8, SETUP_LOOP is deprecated and for blocks aren't terminated by POP_BLOCK, so we add them here
+                        // 在 v3.8 中，SETUP_LOOP 已弃用，for 块不由 POP_BLOCK 终止，因此我们在这里添加它们
                         bool should_add_for_block = mod->majorVer() == 3 && mod->minorVer() >= 8 && is_jump_to_start && !curblock.cast<ASTIterBlock>()->isComprehension();
 
                         if (should_pop_for_block || should_add_for_block) {
@@ -1216,9 +1212,9 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                         curblock->append(new ASTKeyword(ASTKeyword::KW_CONTINUE));
                     }
 
-                    /* We're in a loop, this jumps back to the start */
-                    /* I think we'll just ignore this case... */
-                    break; // Bad idea? Probably!
+                    /* 我们在一个循环中，这跳回到开始 */
+                    /* 我想我们只是忽略这种情况... */
+                    break; // 坏主意？可能是！
                 }
 
                 if (curblock->blktype() == ASTBlock::BLK_CONTAINER) {
@@ -1236,7 +1232,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                     stack = stack_hist.top();
                     stack_hist.pop();
                 } else {
-                    fprintf(stderr, "Warning: Stack history is empty, something wrong might have happened\n");
+                    fprintf(stderr, "警告：栈历史为空，可能发生了错误\n");
                 }
 
                 PycRef<ASTBlock> prev = curblock;
@@ -1270,7 +1266,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                         blocks.push(next.cast<ASTBlock>());
                         prev = nil;
                     } else if (prev->blktype() == ASTBlock::BLK_ELSE) {
-                        /* Special case */
+                        /* 特殊情况 */
                         prev = blocks.top();
                         if (!push) {
                             stack = stack_hist.top();
@@ -1308,7 +1304,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                 }
 
                 if (!stack_hist.empty()) {
-                    if (stack.empty()) // if it's part of if-expression, TOS at the moment is the result of "if" part
+                    if (stack.empty()) // 如果是 if 表达式的一部分，此时的 TOS 是 "if" 部分的结果
                         stack = stack_hist.top();
                     stack_hist.pop();
                 }
@@ -1355,7 +1351,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                         blocks.push(next.cast<ASTBlock>());
                         prev = nil;
                     } else if (prev->blktype() == ASTBlock::BLK_ELSE) {
-                        /* Special case */
+                        /* 特殊情况 */
                         prev = blocks.top();
                         if (!push) {
                             stack = stack_hist.top();
@@ -1364,12 +1360,12 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                         push = false;
 
                         if (prev->blktype() == ASTBlock::BLK_MAIN) {
-                            /* Something went out of control! */
+                            /* 某事失控了！ */
                             prev = nil;
                         }
                     } else if (prev->blktype() == ASTBlock::BLK_TRY
                             && prev->end() < pos+offs) {
-                        /* Need to add an except/finally block */
+                        /* 需要添加一个 except/finally 块 */
                         stack = stack_hist.top();
                         stack.pop();
 
@@ -1385,7 +1381,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                                 blocks.push(except);
                             }
                         } else {
-                            fprintf(stderr, "Something TERRIBLE happened!!\n");
+                            fprintf(stderr, "发生了可怕的事情！！\n");
                         }
                         prev = nil;
                     } else {
@@ -1415,7 +1411,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                     stack.pop();
                     stack.push(new ASTComprehension(value));
                 } else {
-                    stack.push(new ASTSubscr(list, value)); /* Total hack */
+                    stack.push(new ASTSubscr(list, value)); /* 完全 hack */
                 }
             }
             break;
@@ -1427,14 +1423,14 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                 stack.pop();
 
                 if (rhs.type() != ASTNode::NODE_OBJECT) {
-                    fprintf(stderr, "Unsupported argument found for SET_UPDATE\n");
+                    fprintf(stderr, "为 SET_UPDATE 找到不支持的参数\n");
                     break;
                 }
 
-                // I've only ever seen this be a TYPE_FROZENSET, but let's be careful...
+                // 我只见过这个是 TYPE_FROZENSET，但让我们小心点...
                 PycRef<PycObject> obj = rhs.cast<ASTObject>()->object();
                 if (obj->type() != PycObject::TYPE_FROZENSET) {
-                    fprintf(stderr, "Unsupported argument type found for SET_UPDATE\n");
+                    fprintf(stderr, "为 SET_UPDATE 找到不支持的参数类型\n");
                     break;
                 }
 
@@ -1454,14 +1450,14 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                 stack.pop();
 
                 if (rhs.type() != ASTNode::NODE_OBJECT) {
-                    fprintf(stderr, "Unsupported argument found for LIST_EXTEND\n");
+                    fprintf(stderr, "为 LIST_EXTEND 找到不支持的参数\n");
                     break;
                 }
 
-                // I've only ever seen this be a SMALL_TUPLE, but let's be careful...
+                // 我只见过这个是 SMALL_TUPLE，但让我们小心点...
                 PycRef<PycObject> obj = rhs.cast<ASTObject>()->object();
                 if (obj->type() != PycObject::TYPE_TUPLE && obj->type() != PycObject::TYPE_SMALL_TUPLE) {
-                    fprintf(stderr, "Unsupported argument type found for LIST_EXTEND\n");
+                    fprintf(stderr, "为 LIST_EXTEND 找到不支持的参数类型\n");
                     break;
                 }
 
@@ -1481,9 +1477,8 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
 
                     if (mod->verCompare(3, 12) >= 0) {
                         if (operand & 1) {
-                            /* Changed in version 3.12:
-                            If the low bit of name is set, then a NULL or self is pushed to the stack
-                            before the attribute or unbound method respectively. */
+                            /* 3.12 版更改：
+                            如果 name 的低位被设置，则在属性或未绑定方法之前将 NULL 或 self 压入栈。 */
                             stack.push(nullptr);
                         }
                         operand >>= 1;
@@ -1497,7 +1492,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
             stack.push(new ASTLoadBuildClass(new PycObject()));
             break;
         case Pyc::LOAD_CLOSURE_A:
-            /* Ignore this */
+            /* 忽略这个 */
             break;
         case Pyc::LOAD_CONST_A:
             {
@@ -1531,11 +1526,11 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
             break;
         case Pyc::LOAD_GLOBAL_A:
             if (mod->verCompare(3, 11) >= 0) {
-                // Loads the global named co_names[namei>>1] onto the stack.
+                // 将名为 co_names[namei>>1] 的全局变量加载到栈上。
                 if (operand & 1) {
-                    /* Changed in version 3.11: 
-                    If the low bit of "NAMEI" (operand) is set, 
-                    then a NULL is pushed to the stack before the global variable. */
+                    /* 3.11 版更改：
+                    如果 "NAMEI"（操作数）的低位被设置，
+                    则在全局变量之前将 NULL 压入栈。 */
                     stack.push(nullptr);
                 }
                 operand >>= 1;
@@ -1550,7 +1545,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
             break;
         case Pyc::LOAD_METHOD_A:
             {
-                // Behave like LOAD_ATTR
+                // 行为类似于 LOAD_ATTR
                 PycRef<ASTNode> name = stack.top();
                 stack.pop();
                 stack.push(new ASTBinary(name, new ASTName(code->getName(operand)), ASTBinary::BIN_ATTR));
@@ -1565,7 +1560,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                 PycRef<ASTNode> fun_code = stack.top();
                 stack.pop();
 
-                /* Test for the qualified name of the function (at TOS) */
+                /* 测试函数的限定名称（在 TOS） */
                 int tos_type = fun_code.cast<ASTObject>()->object().type();
                 if (tos_type != PycObject::TYPE_CODE &&
                     tos_type != PycObject::TYPE_CODE2) {
@@ -1593,12 +1588,12 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
             {
                 if (curblock->blktype() == ASTBlock::BLK_CONTAINER ||
                         curblock->blktype() == ASTBlock::BLK_FINALLY) {
-                    /* These should only be popped by an END_FINALLY */
+                    /* 这些应该只由 END_FINALLY 弹出 */
                     break;
                 }
 
                 if (curblock->blktype() == ASTBlock::BLK_WITH) {
-                    // This should only be popped by a WITH_CLEANUP
+                    // 这应该只由 WITH_CLEANUP 弹出
                     break;
                 }
 
@@ -1617,7 +1612,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                         stack = stack_hist.top();
                         stack_hist.pop();
                     } else {
-                        fprintf(stderr, "Warning: Stack history is empty, something wrong might have happened\n");
+                        fprintf(stderr, "警告：栈历史为空，可能发生了错误\n");
                     }
                 }
                 PycRef<ASTBlock> tmp = curblock;
@@ -1661,7 +1656,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
 
                     if (tmp->blktype() == ASTBlock::BLK_ELSE && !cont->hasFinally()) {
 
-                        /* Pop the container */
+                        /* 弹出容器 */
                         blocks.pop();
                         curblock = blocks.top();
                         curblock->append(cont.cast<ASTNode>());
@@ -1669,7 +1664,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                     } else if ((tmp->blktype() == ASTBlock::BLK_ELSE && cont->hasFinally())
                             || (tmp->blktype() == ASTBlock::BLK_TRY && !cont->hasExcept())) {
 
-                        /* Add the finally block */
+                        /* 添加 finally 块 */
                         stack_hist.push(stack);
 
                         PycRef<ASTBlock> final = new ASTBlock(ASTBlock::BLK_FINALLY, 0, true);
@@ -1687,22 +1682,21 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
             }
             break;
         case Pyc::POP_EXCEPT:
-            /* Do nothing. */
+            /* 什么都不做。 */
             break;
         case Pyc::END_FOR:
             {
                 stack.pop();
 
                 if ((opcode == Pyc::END_FOR) && (mod->majorVer() == 3) && (mod->minorVer() == 12)) {
-                    // one additional pop for python 3.12
+                    // 对于 python 3.12 额外弹出一个
                     stack.pop();
                 }
 
-                // end for loop here
-                /* TODO : Ensure that FOR loop ends here. 
-                   Due to CACHE instructions at play, the end indicated in
-                   the for loop by pycdas is not correct, it is off by
-                   some small amount. */
+                // 在这里结束 for 循环
+                /* TODO : 确保 FOR 循环在这里结束。
+                   由于存在 CACHE 指令，pycdas 指示的 for 循环结束位置不正确，它偏差了
+                   少量。 */
                 if (curblock->blktype() == ASTBlock::BLK_FOR) {
                     PycRef<ASTBlock> prev = blocks.top();
                     blocks.pop();
@@ -1711,7 +1705,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                     curblock->append(prev.cast<ASTNode>());
                 }
                 else {
-                    fprintf(stderr, "Wrong block type %i for END_FOR\n", curblock->blktype());
+                    fprintf(stderr, "END_FOR 的块类型 %i 错误\n", curblock->blktype());
                 }
             }
             break;
@@ -1735,9 +1729,9 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
 
                 if (curblock->blktype() == ASTBlock::BLK_FOR
                         && curblock.cast<ASTIterBlock>()->isComprehension()) {
-                    /* This relies on some really uncertain logic...
-                     * If it's a comprehension, the only POP_TOP should be
-                     * a call to append the iter to the list.
+                    /* 这依赖于一些非常不确定的逻辑...
+                     * 如果是一个推导式，唯一的 POP_TOP 应该是
+                     * 一个调用，将 iter 附加到列表。
                      */
                     if (value.type() == ASTNode::NODE_CALL) {
                         auto& pparams = value.cast<ASTCall>()->pparams();
@@ -1910,7 +1904,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
             }
             break;
         case Pyc::SET_LINENO_A:
-            // Ignore
+            // 忽略
             break;
         case Pyc::SETUP_WITH_A:
         case Pyc::WITH_EXCEPT_START:
@@ -1923,12 +1917,12 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
         case Pyc::WITH_CLEANUP:
         case Pyc::WITH_CLEANUP_START:
             {
-                // Stack top should be a None. Ignore it.
+                // 栈顶应该是一个 None。忽略它。
                 PycRef<ASTNode> none = stack.top();
                 stack.pop();
 
                 if (none != NULL) {
-                    fprintf(stderr, "Something TERRIBLE happened!\n");
+                    fprintf(stderr, "发生了可怕的事情！\n");
                     break;
                 }
 
@@ -1940,12 +1934,12 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                     curblock->append(with.cast<ASTNode>());
                 }
                 else {
-                    fprintf(stderr, "Something TERRIBLE happened! No matching with block found for WITH_CLEANUP at %d\n", curpos);
+                    fprintf(stderr, "发生了可怕的事情！在 %d 处没有找到匹配的 with 块用于 WITH_CLEANUP\n", curpos);
                 }
             }
             break;
         case Pyc::WITH_CLEANUP_FINISH:
-            /* Ignore this */
+            /* 忽略这个 */
             break;
         case Pyc::SETUP_EXCEPT_A:
             {
@@ -1956,7 +1950,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                     blocks.push(next.cast<ASTBlock>());
                 }
 
-                /* Store the current stack for the except/finally statement(s) */
+                /* 为 except/finally 语句存储当前栈 */
                 stack_hist.push(stack);
                 PycRef<ASTBlock> tryblock = new ASTBlock(ASTBlock::BLK_TRY, pos+operand, true);
                 blocks.push(tryblock.cast<ASTBlock>());
@@ -2036,7 +2030,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                     if (tup.type() == ASTNode::NODE_TUPLE)
                         tup.cast<ASTTuple>()->add(attr);
                     else
-                        fputs("Something TERRIBLE happened!\n", stderr);
+                        fputs("发生了可怕的事情！\n", stderr);
 
                     if (--unpack <= 0) {
                         stack.pop();
@@ -2071,7 +2065,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                     if (tup.type() == ASTNode::NODE_TUPLE)
                         tup.cast<ASTTuple>()->add(name);
                     else
-                        fputs("Something TERRIBLE happened!\n", stderr);
+                        fputs("发生了可怕的事情！\n", stderr);
 
                     if (--unpack <= 0) {
                         stack.pop();
@@ -2111,7 +2105,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                     if (tup.type() == ASTNode::NODE_TUPLE)
                         tup.cast<ASTTuple>()->add(name);
                     else
-                        fputs("Something TERRIBLE happened!\n", stderr);
+                        fputs("发生了可怕的事情！\n", stderr);
 
                     if (--unpack <= 0) {
                         stack.pop();
@@ -2142,7 +2136,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
 
                     if (name.cast<ASTName>()->name()->value()[0] == '_'
                             && name.cast<ASTName>()->name()->value()[1] == '[') {
-                        /* Don't show stores of list comp append objects. */
+                        /* 不显示列表推导式附加对象的存储。 */
                         break;
                     }
 
@@ -2170,7 +2164,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                     if (tup.type() == ASTNode::NODE_TUPLE)
                         tup.cast<ASTTuple>()->add(name);
                     else
-                        fputs("Something TERRIBLE happened!\n", stderr);
+                        fputs("发生了可怕的事情！\n", stderr);
 
                     if (--unpack <= 0) {
                         stack.pop();
@@ -2199,7 +2193,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                     }
                 }
 
-                /* Mark the global as used */
+                /* 将全局标记为已使用 */
                 code->markGlobal(name.cast<ASTName>()->name());
             }
             break;
@@ -2212,7 +2206,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                     if (tup.type() == ASTNode::NODE_TUPLE)
                         tup.cast<ASTTuple>()->add(name);
                     else
-                        fputs("Something TERRIBLE happened!\n", stderr);
+                        fputs("发生了可怕的事情！\n", stderr);
 
                     if (--unpack <= 0) {
                         stack.pop();
@@ -2238,11 +2232,11 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                     PycRef<PycString> varname = code->getName(operand);
                     if (varname->length() >= 2 && varname->value()[0] == '_'
                             && varname->value()[1] == '[') {
-                        /* Don't show stores of list comp append objects. */
+                        /* 不显示列表推导式附加对象的存储。 */
                         break;
                     }
 
-                    // Return private names back to their original name
+                    // 将私有名称恢复为其原始名称
                     const std::string class_prefix = std::string("_") + code->name()->strValue();
                     if (varname->startsWith(class_prefix + std::string("__")))
                         varname->setValue(varname->strValue().substr(class_prefix.size()));
@@ -2333,7 +2327,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                     if (tup.type() == ASTNode::NODE_TUPLE)
                         tup.cast<ASTTuple>()->add(save);
                     else
-                        fputs("Something TERRIBLE happened!\n", stderr);
+                        fputs("发生了可怕的事情！\n", stderr);
 
                     if (--unpack <= 0) {
                         stack.pop();
@@ -2353,17 +2347,17 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                     PycRef<ASTNode> src = stack.top();
                     stack.pop();
 
-                    // If variable annotations are enabled, we'll need to check for them here.
-                    // Python handles a varaible annotation by setting:
+                    // 如果启用了变量注解，我们需要在这里检查它们。
+                    // Python 通过设置处理变量注解：
                     // __annotations__['var-name'] = type
                     const bool found_annotated_var = (variable_annotations && dest->type() == ASTNode::Type::NODE_NAME
                                                       && dest.cast<ASTName>()->name()->isEqual("__annotations__"));
 
                     if (found_annotated_var) {
-                        // Annotations can be done alone or as part of an assignment.
-                        // In the case of an assignment, we'll see a NODE_STORE on the stack.
+                        // 注解可以单独完成，也可以作为赋值的一部分。
+                        // 在赋值的情况下，我们会在栈上看到 NODE_STORE。
                         if (!curblock->nodes().empty() && curblock->nodes().back()->type() == ASTNode::Type::NODE_STORE) {
-                            // Replace the existing NODE_STORE with a new one that includes the annotation.
+                            // 用包含注解的新 NODE_STORE 替换现有的 NODE_STORE。
                             PycRef<ASTStore> store = curblock->nodes().back().cast<ASTStore>();
                             curblock->removeLast();
                             curblock->append(new ASTStore(store->src(),
@@ -2434,8 +2428,8 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                     ASTTuple::value_t vals;
                     stack.push(new ASTTuple(vals));
                 } else {
-                    // Unpack zero values and assign it to top of stack or for loop variable.
-                    // E.g. [] = TOS / for [] in X
+                    // 解包零个值并将其分配给栈顶或 for 循环变量。
+                    // 例如 [] = TOS / for [] in X
                     ASTTuple::value_t vals;
                     auto tup = new ASTTuple(vals);
                     if (curblock->blktype() == ASTBlock::BLK_FOR
@@ -2457,7 +2451,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
             {
                 PycRef<ASTNode> dest = stack.top();
                 stack.pop();
-                // TODO: Support yielding into a non-null destination
+                // TODO: 支持 yield 到非空目标
                 PycRef<ASTNode> value = stack.top();
                 if (value) {
                     value->setProcessed();
@@ -2479,13 +2473,12 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
         case Pyc::PRECALL_A:
         case Pyc::RESUME_A:
         case Pyc::INSTRUMENTED_RESUME_A:
-            /* We just entirely ignore this / no-op */
+            /* 我们完全忽略这个 / 无操作 */
             break;
         case Pyc::CACHE:
-            /* These "fake" opcodes are used as placeholders for optimizing
-               certain opcodes in Python 3.11+.  Since we have no need for
-               that during disassembly/decompilation, we can just treat these
-               as no-ops. */
+            /* 这些 "伪" 操作码在 Python 3.11+ 中用作优化
+               某些操作码的占位符。由于我们在反汇编/解编译期间不需要
+               这些，我们可以将这些视为无操作。 */
             break;
         case Pyc::PUSH_NULL:
             stack.push(nullptr);
@@ -2585,7 +2578,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
             }
             break;
         default:
-            fprintf(stderr, "Unsupported opcode: %s (%d)\n", Pyc::OpcodeName(opcode), opcode);
+            fprintf(stderr, "不支持的操作码: %s (%d)\n", Pyc::OpcodeName(opcode), opcode);
             cleanBuild = false;
             return new ASTNodeList(defblock->nodes());
         }
@@ -2597,7 +2590,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
     }
 
     if (stack_hist.size()) {
-        fputs("Warning: Stack history is not empty!\n", stderr);
+        fputs("警告：栈历史不为空！\n", stderr);
 
         while (stack_hist.size()) {
             stack_hist.pop();
@@ -2605,7 +2598,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
     }
 
     if (blocks.size() > 1) {
-        fputs("Warning: block stack is not empty!\n", stderr);
+        fputs("警告：块栈不为空！\n", stderr);
 
         while (blocks.size() > 1) {
             PycRef<ASTBlock> tmp = blocks.top();
@@ -2622,7 +2615,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
 static void append_to_chain_store(const PycRef<ASTNode> &chainStore,
         PycRef<ASTNode> item, FastStack& stack, const PycRef<ASTBlock>& curblock)
 {
-    stack.pop();    // ignore identical source object.
+    stack.pop();    // 忽略相同的源对象。
     chainStore.cast<ASTChainStore>()->append(item);
     if (stack.top().type() == PycObject::TYPE_NULL) {
         curblock->append(chainStore);
@@ -2633,13 +2626,13 @@ static void append_to_chain_store(const PycRef<ASTNode> &chainStore,
 
 static int cmp_prec(PycRef<ASTNode> parent, PycRef<ASTNode> child)
 {
-    /* Determine whether the parent has higher precedence than therefore
-       child, so we don't flood the source code with extraneous parens.
-       Else we'd have expressions like (((a + b) + c) + d) when therefore
-       equivalent, a + b + c + d would suffice. */
+    /* 确定父节点是否比子节点具有更高的优先级，
+       这样我们就不会用多余的括号淹没源代码。
+       否则我们会有像 (((a + b) + c) + d) 这样的表达式，而
+       等效的 a + b + c + d 就足够了。 */
 
     if (parent.type() == ASTNode::NODE_UNARY && parent.cast<ASTUnary>()->op() == ASTUnary::UN_NOT)
-        return 1;   // Always parenthesize not(x)
+        return 1;   // 总是给 not(x) 加括号
     if (child.type() == ASTNode::NODE_BINARY) {
         PycRef<ASTBinary> binChild = child.cast<ASTBinary>();
         if (parent.type() == ASTNode::NODE_BINARY) {
@@ -2688,7 +2681,7 @@ static int cmp_prec(PycRef<ASTNode> parent, PycRef<ASTNode> child)
             return (parent.cast<ASTUnary>()->op() == ASTUnary::UN_NOT) ? -1 : 1;
     }
 
-    /* For normal nodes, don't parenthesize anything */
+    /* 对于普通节点，不要给任何东西加括号 */
     return -1;
 }
 
@@ -2791,7 +2784,7 @@ void print_src(PycRef<ASTNode> node, PycModule* mod, std::ostream& pyc_output)
     }
 
     if (node_seen.find((ASTNode *)node) != node_seen.end()) {
-        fputs("WARNING: Circular reference detected\n", stderr);
+        fputs("警告：检测到循环引用\n", stderr);
         return;
     }
     node_seen.insert((ASTNode *)node);
@@ -2891,12 +2884,12 @@ void print_src(PycRef<ASTNode> node, PycModule* mod, std::ostream& pyc_output)
                 print_formatted_value(val.cast<ASTFormattedValue>(), mod, pyc_output);
                 break;
             case ASTNode::NODE_OBJECT:
-                // When printing a piece of the f-string, keep the quote style consistent.
-                // This avoids problems when ''' or """ is part of the string.
+                // 当打印 f-string 的一部分时，保持引号风格一致。
+                // 这避免了当 ''' 或 """ 是字符串的一部分时出现问题。
                 print_const(pyc_output, val.cast<ASTObject>()->object(), mod, F_STRING_QUOTE);
                 break;
             default:
-                fprintf(stderr, "Unsupported node type %d in NODE_JOINEDSTR\n", val.type());
+                fprintf(stderr, "NODE_JOINEDSTR 中不支持的节点类型 %d\n", val.type());
             }
         }
         pyc_output << F_STRING_QUOTE;
@@ -2988,7 +2981,7 @@ void print_src(PycRef<ASTNode> node, PycModule* mod, std::ostream& pyc_output)
 
             auto map = new ASTMap;
             for (const auto& key : keys) {
-                // Values are pushed onto the stack in reverse order.
+                // 值以相反的顺序压入栈。
                 PycRef<ASTNode> value = values.back();
                 values.pop_back();
 
@@ -3188,7 +3181,7 @@ void print_src(PycRef<ASTNode> node, PycModule* mod, std::ostream& pyc_output)
         break;
     case ASTNode::NODE_FUNCTION:
         {
-            /* Actual named functions are NODE_STORE with a name */
+            /* 实际的命名函数是带有名称的 NODE_STORE */
             pyc_output << "(lambda ";
             PycRef<ASTNode> code = node.cast<ASTFunction>()->code();
             PycRef<PycCode> code_src = code.cast<ASTObject>()->object().cast<PycCode>();
@@ -3317,7 +3310,7 @@ void print_src(PycRef<ASTNode> node, PycModule* mod, std::ostream& pyc_output)
                     }
                     pyc_output << "):\n";
                 } else {
-                    // Don't put parens if there are no base classes
+                    // 如果没有基类，不要放括号
                     pyc_output << ":\n";
                 }
                 printClassDocstring = true;
@@ -3426,13 +3419,13 @@ void print_src(PycRef<ASTNode> node, PycModule* mod, std::ostream& pyc_output)
         break;
     case ASTNode::NODE_TERNARY:
         {
-            /* parenthesis might be needed
+            /* 可能需要括号
              * 
-             * when if-expr is part of numerical expression, ternary has the LOWEST precedence
+             * 当 if-expr 是数值表达式的一部分时，三元运算符的优先级最低
              *     print(a + b if False else c)
-             * output is c, not a+c (a+b is calculated first)
+             * 输出是 c，而不是 a+c（先计算 a+b）
              * 
-             * but, let's not add parenthesis - to keep the source as close to original as possible in most cases
+             * 但是，让我们不要添加括号 - 以在大多数情况下保持源代码尽可能接近原始代码
              */
             PycRef<ASTTernary> ternary = node.cast<ASTTernary>();
             //pyc_output << "(";
@@ -3449,7 +3442,7 @@ void print_src(PycRef<ASTNode> node, PycModule* mod, std::ostream& pyc_output)
         break;
     default:
         pyc_output << "<NODE:" << node->type() << ">";
-        fprintf(stderr, "Unsupported Node type: %d\n", node->type());
+        fprintf(stderr, "不支持的节点类型: %d\n", node->type());
         cleanBuild = false;
         node_seen.erase((ASTNode *)node);
         return;
@@ -3462,7 +3455,7 @@ void print_src(PycRef<ASTNode> node, PycModule* mod, std::ostream& pyc_output)
 bool print_docstring(PycRef<PycObject> obj, int indent, PycModule* mod,
                      std::ostream& pyc_output)
 {
-    // docstrings are translated from the bytecode __doc__ = 'string' to simply '''string'''
+    // 文档字符串从字节码 __doc__ = 'string' 翻译为简单的 '''string'''
     auto doc = obj.try_cast<PycString>();
     if (doc != nullptr) {
         start_line(indent, pyc_output);
@@ -3478,7 +3471,7 @@ static std::unordered_set<PycCode *> code_seen;
 void decompyle(PycRef<PycCode> code, PycModule* mod, std::ostream& pyc_output)
 {
     if (code_seen.find((PycCode *)code) != code_seen.end()) {
-        fputs("WARNING: Circular reference detected\n", stderr);
+        fputs("警告：检测到循环引用\n", stderr);
         return;
     }
     code_seen.insert((PycCode *)code);
@@ -3487,10 +3480,10 @@ void decompyle(PycRef<PycCode> code, PycModule* mod, std::ostream& pyc_output)
 
     PycRef<ASTNodeList> clean = source.cast<ASTNodeList>();
     if (cleanBuild) {
-        // The Python compiler adds some stuff that we don't really care
-        // about, and would add extra code for re-compilation anyway.
-        // We strip these lines out here, and then add a "pass" statement
-        // if the cleaned up code is empty
+        // Python 编译器添加了一些我们并不真正关心
+        // 的东西，并且会为重新编译添加额外的代码。
+        // 我们在这里剥离这些行，然后如果清理后的代码为空
+        // 则添加一个 "pass" 语句
         if (clean->nodes().front().type() == ASTNode::NODE_STORE) {
             PycRef<ASTStore> store = clean->nodes().front().cast<ASTStore>();
             if (store->src().type() == ASTNode::NODE_NAME
@@ -3500,7 +3493,7 @@ void decompyle(PycRef<PycCode> code, PycModule* mod, std::ostream& pyc_output)
                 if (src->name()->isEqual("__name__")
                         && dest->name()->isEqual("__module__")) {
                     // __module__ = __name__
-                    // Automatically added by Python 2.2.1 and later
+                    // 由 Python 2.2.1 及更高版本自动添加
                     clean->removeFirst();
                 }
             }
@@ -3514,13 +3507,13 @@ void decompyle(PycRef<PycCode> code, PycModule* mod, std::ostream& pyc_output)
                 PycRef<ASTName> dest = store->dest().cast<ASTName>();
                 if (dest->name()->isEqual("__qualname__")) {
                     // __qualname__ = '<Class Name>'
-                    // Automatically added by Python 3.3 and later
+                    // 由 Python 3.3 及更高版本自动添加
                     clean->removeFirst();
                 }
             }
         }
 
-        // Class and module docstrings may only appear at the beginning of their source
+        // 类和模块文档字符串可能只出现在其源代码的开头
         if (printClassDocstring && clean->nodes().front().type() == ASTNode::NODE_STORE) {
             PycRef<ASTStore> store = clean->nodes().front().cast<ASTStore>();
             if (store->dest().type() == ASTNode::NODE_NAME &&
@@ -3537,14 +3530,14 @@ void decompyle(PycRef<PycCode> code, PycModule* mod, std::ostream& pyc_output)
             PycRef<ASTObject> retObj = ret->value().try_cast<ASTObject>();
             if (ret->value() == NULL || ret->value().type() == ASTNode::NODE_LOCALS ||
                     (retObj && retObj->object().type() == PycObject::TYPE_NONE)) {
-                clean->removeLast();  // Always an extraneous return statement
+                clean->removeLast();  // 总是多余的 return 语句
             }
         }
     }
     if (printClassDocstring)
         printClassDocstring = false;
-    // This is outside the clean check so a source block will always
-    // be compilable, even if decompylation failed.
+    // 这在清理检查之外，因此源代码块将始终
+    // 可编译，即使解编译失败。
     if (clean->nodes().size() == 0 && !code.isIdent(mod->code()))
         clean->append(new ASTKeyword(ASTKeyword::KW_PASS));
 
@@ -3574,7 +3567,7 @@ void decompyle(PycRef<PycCode> code, PycModule* mod, std::ostream& pyc_output)
 
     if (!cleanBuild || !part1clean) {
         start_line(cur_indent, pyc_output);
-        pyc_output << "# WARNING: Decompyle incomplete\n";
+        pyc_output << "# 警告：解编译不完整\n";
     }
 
     code_seen.erase((PycCode *)code);

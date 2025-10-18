@@ -10,12 +10,12 @@
 #include "bytecode.h"
 
 #ifdef WIN32
-#  define PATHSEP '\\'  // WindowsÂ·¾¶·Ö¸ô·û
+#  define PATHSEP '\\'  // Windowsè·¯å¾„åˆ†éš”ç¬¦
 #else
-#  define PATHSEP '/'   // Unix/LinuxÂ·¾¶·Ö¸ô·û
+#  define PATHSEP '/'   // Unix/Linuxè·¯å¾„åˆ†éš”ç¬¦
 #endif
 
-// ´úÂë±êÖ¾Î»Ãû³Æ
+// ä»£ç æ ‡å¿—ä½åç§°
 static const char* flag_names[] = {
     "CO_OPTIMIZED", "CO_NEWLOCALS", "CO_VARARGS", "CO_VARKEYWORDS",
     "CO_NESTED", "CO_GENERATOR", "CO_NOFREE", "CO_COROUTINE",
@@ -28,7 +28,7 @@ static const char* flag_names[] = {
     "<0x10000000>", "<0x20000000>", "<0x40000000>", "<0x80000000>"
 };
 
-// ´òÓ¡´úÂë±êÖ¾Î»
+// æ‰“å°ä»£ç æ ‡å¿—ä½
 static void print_coflags(unsigned long flags, std::ostream& pyc_output)
 {
     if (flags == 0) {
@@ -53,7 +53,7 @@ static void print_coflags(unsigned long flags, std::ostream& pyc_output)
     pyc_output << ")\n";
 }
 
-// Ëõ½øÊä³öÎÄ±¾
+// ç¼©è¿›è¾“å‡ºæ–‡æœ¬
 static void iputs(std::ostream& pyc_output, int indent, const char* text)
 {
     for (int i=0; i<indent; i++)
@@ -61,7 +61,7 @@ static void iputs(std::ostream& pyc_output, int indent, const char* text)
     pyc_output << text;
 }
 
-// Ëõ½ø¸ñÊ½»¯Êä³ö(¿É±ä²ÎÊı°æ±¾)
+// ç¼©è¿›æ ¼å¼åŒ–è¾“å‡º(å¯å˜å‚æ•°ç‰ˆæœ¬)
 static void ivprintf(std::ostream& pyc_output, int indent, const char* fmt,
                      va_list varargs)
 {
@@ -70,7 +70,7 @@ static void ivprintf(std::ostream& pyc_output, int indent, const char* fmt,
     formatted_printv(pyc_output, fmt, varargs);
 }
 
-// Ëõ½ø¸ñÊ½»¯Êä³ö
+// ç¼©è¿›æ ¼å¼åŒ–è¾“å‡º
 static void iprintf(std::ostream& pyc_output, int indent, const char* fmt, ...)
 {
     va_list varargs;
@@ -79,10 +79,10 @@ static void iprintf(std::ostream& pyc_output, int indent, const char* fmt, ...)
     va_end(varargs);
 }
 
-// ÒÑÊä³ö¶ÔÏó¼¯ºÏ(ÓÃÓÚ¼ì²âÑ­»·ÒıÓÃ)
+// å·²è¾“å‡ºå¯¹è±¡é›†åˆ(ç”¨äºæ£€æµ‹å¾ªç¯å¼•ç”¨)
 static std::unordered_set<PycObject *> out_seen;
 
-// Êä³öPython¶ÔÏó
+// è¾“å‡ºPythonå¯¹è±¡
 void output_object(PycRef<PycObject> obj, PycModule* mod, int indent,
                    unsigned flags, std::ostream& pyc_output)
 {
@@ -91,9 +91,9 @@ void output_object(PycRef<PycObject> obj, PycModule* mod, int indent,
         return;
     }
 
-    // ¼ì²âÑ­»·ÒıÓÃ
+    // æ£€æµ‹å¾ªç¯å¼•ç”¨
     if (out_seen.find((PycObject *)obj) != out_seen.end()) {
-        fputs("¾¯¸æ: ¼ì²âµ½Ñ­»·ÒıÓÃ\n", stderr);
+        fputs("è­¦å‘Š: æ£€æµ‹åˆ°å¾ªç¯å¼•ç”¨\n", stderr);
         return;
     }
     out_seen.insert((PycObject *)obj);
@@ -103,73 +103,73 @@ void output_object(PycRef<PycObject> obj, PycModule* mod, int indent,
     case PycObject::TYPE_CODE2:
         {
             PycRef<PycCode> codeObj = obj.cast<PycCode>();
-            iputs(pyc_output, indent, "[´úÂë¶ÔÏó]\n");
-            iprintf(pyc_output, indent + 1, "ÎÄ¼şÃû: %s\n", codeObj->fileName()->value());
-            iprintf(pyc_output, indent + 1, "¶ÔÏóÃû: %s\n", codeObj->name()->value());
+            iputs(pyc_output, indent, "[ä»£ç å¯¹è±¡]\n");
+            iprintf(pyc_output, indent + 1, "æ–‡ä»¶å: %s\n", codeObj->fileName()->value());
+            iprintf(pyc_output, indent + 1, "å¯¹è±¡å: %s\n", codeObj->name()->value());
             if (mod->verCompare(3, 11) >= 0)
-                iprintf(pyc_output, indent + 1, "ÏŞ¶¨Ãû: %s\n", codeObj->qualName()->value());
-            iprintf(pyc_output, indent + 1, "²ÎÊıÊıÁ¿: %d\n", codeObj->argCount());
+                iprintf(pyc_output, indent + 1, "é™å®šå: %s\n", codeObj->qualName()->value());
+            iprintf(pyc_output, indent + 1, "å‚æ•°æ•°é‡: %d\n", codeObj->argCount());
             if (mod->verCompare(3, 8) >= 0)
-                iprintf(pyc_output, indent + 1, "½öÎ»ÖÃ²ÎÊıÊıÁ¿: %d\n", codeObj->posOnlyArgCount());
+                iprintf(pyc_output, indent + 1, "ä»…ä½ç½®å‚æ•°æ•°é‡: %d\n", codeObj->posOnlyArgCount());
             if (mod->majorVer() >= 3)
-                iprintf(pyc_output, indent + 1, "½ö¹Ø¼ü×Ö²ÎÊıÊıÁ¿: %d\n", codeObj->kwOnlyArgCount());
+                iprintf(pyc_output, indent + 1, "ä»…å…³é”®å­—å‚æ•°æ•°é‡: %d\n", codeObj->kwOnlyArgCount());
             if (mod->verCompare(3, 11) < 0)
-                iprintf(pyc_output, indent + 1, "¾Ö²¿±äÁ¿ÊıÁ¿: %d\n", codeObj->numLocals());
+                iprintf(pyc_output, indent + 1, "å±€éƒ¨å˜é‡æ•°é‡: %d\n", codeObj->numLocals());
             if (mod->verCompare(1, 5) >= 0)
-                iprintf(pyc_output, indent + 1, "Õ»´óĞ¡: %d\n", codeObj->stackSize());
+                iprintf(pyc_output, indent + 1, "æ ˆå¤§å°: %d\n", codeObj->stackSize());
             if (mod->verCompare(1, 3) >= 0) {
                 unsigned int orig_flags = codeObj->flags();
                 if (mod->verCompare(3, 8) < 0) {
-                    // ½«±êÖ¾Î»Ó³Éä»ØPyCode¶ÔÏóÖĞ´æ´¢µÄÖµ
+                    // å°†æ ‡å¿—ä½æ˜ å°„å›PyCodeå¯¹è±¡ä¸­å­˜å‚¨çš„å€¼
                     orig_flags = (orig_flags & 0xFFFF) | ((orig_flags & 0xFFF00000) >> 4);
                 }
-                iprintf(pyc_output, indent + 1, "±êÖ¾Î»: 0x%08X", orig_flags);
+                iprintf(pyc_output, indent + 1, "æ ‡å¿—ä½: 0x%08X", orig_flags);
                 print_coflags(codeObj->flags(), pyc_output);
             }
 
-            iputs(pyc_output, indent + 1, "[Ãû³Æ±í]\n");
+            iputs(pyc_output, indent + 1, "[åç§°è¡¨]\n");
             for (int i=0; i<codeObj->names()->size(); i++)
                 output_object(codeObj->names()->get(i), mod, indent + 2, flags, pyc_output);
 
             if (mod->verCompare(1, 3) >= 0) {
                 if (mod->verCompare(3, 11) >= 0)
-                    iputs(pyc_output, indent + 1, "[¾Ö²¿±äÁ¿+Ãû³Æ]\n");
+                    iputs(pyc_output, indent + 1, "[å±€éƒ¨å˜é‡+åç§°]\n");
                 else
-                    iputs(pyc_output, indent + 1, "[±äÁ¿Ãû]\n");
+                    iputs(pyc_output, indent + 1, "[å˜é‡å]\n");
                 for (int i=0; i<codeObj->localNames()->size(); i++)
                     output_object(codeObj->localNames()->get(i), mod, indent + 2, flags, pyc_output);
             }
 
             if (mod->verCompare(3, 11) >= 0 && (flags & Pyc::DISASM_PYCODE_VERBOSE) != 0) {
-                iputs(pyc_output, indent + 1, "[¾Ö²¿±äÁ¿+ÖÖÀà]\n");
+                iputs(pyc_output, indent + 1, "[å±€éƒ¨å˜é‡+ç§ç±»]\n");
                 output_object(codeObj->localKinds().cast<PycObject>(), mod, indent + 2, flags, pyc_output);
             }
 
             if (mod->verCompare(2, 1) >= 0 && mod->verCompare(3, 11) < 0) {
-                iputs(pyc_output, indent + 1, "[×ÔÓÉ±äÁ¿]\n");
+                iputs(pyc_output, indent + 1, "[è‡ªç”±å˜é‡]\n");
                 for (int i=0; i<codeObj->freeVars()->size(); i++)
                     output_object(codeObj->freeVars()->get(i), mod, indent + 2, flags, pyc_output);
 
-                iputs(pyc_output, indent + 1, "[µ¥Ôª¸ñ±äÁ¿]\n");
+                iputs(pyc_output, indent + 1, "[å•å…ƒæ ¼å˜é‡]\n");
                 for (int i=0; i<codeObj->cellVars()->size(); i++)
                     output_object(codeObj->cellVars()->get(i), mod, indent + 2, flags, pyc_output);
             }
 
-            iputs(pyc_output, indent + 1, "[³£Á¿]\n");
+            iputs(pyc_output, indent + 1, "[å¸¸é‡]\n");
             for (int i=0; i<codeObj->consts()->size(); i++)
                 output_object(codeObj->consts()->get(i), mod, indent + 2, flags, pyc_output);
 
-            iputs(pyc_output, indent + 1, "[·´»ã±à]\n");
+            iputs(pyc_output, indent + 1, "[åæ±‡ç¼–]\n");
             bc_disasm(pyc_output, codeObj, mod, indent + 2, flags);
 
             if (mod->verCompare(3, 11) >= 0) {
-                iputs(pyc_output, indent + 1, "[Òì³£±í]\n");
+                iputs(pyc_output, indent + 1, "[å¼‚å¸¸è¡¨]\n");
                 bc_exceptiontable(pyc_output, codeObj, indent+2);
             }
 
             if (mod->verCompare(1, 5) >= 0 && (flags & Pyc::DISASM_PYCODE_VERBOSE) != 0) {
-                iprintf(pyc_output, indent + 1, "Ê×ĞĞºÅ: %d\n", codeObj->firstLine());
-                iputs(pyc_output, indent + 1, "[ĞĞºÅ±í]\n");
+                iprintf(pyc_output, indent + 1, "é¦–è¡Œå·: %d\n", codeObj->firstLine());
+                iputs(pyc_output, indent + 1, "[è¡Œå·è¡¨]\n");
                 output_object(codeObj->lnTable().cast<PycObject>(), mod, indent + 2, flags, pyc_output);
             }
         }
@@ -261,7 +261,7 @@ void output_object(PycRef<PycObject> obj, PycModule* mod, int indent,
                                       obj.cast<PycCComplex>()->imag());
         break;
     default:
-        iprintf(pyc_output, indent, "<ÀàĞÍ: %d>\n", obj->type());
+        iprintf(pyc_output, indent, "<ç±»å‹: %d>\n", obj->type());
     }
 
     out_seen.erase((PycObject *)obj);
@@ -269,114 +269,114 @@ void output_object(PycRef<PycObject> obj, PycModule* mod, int indent,
 
 int main(int argc, char* argv[])
 {
-    const char* infile = nullptr;      // ÊäÈëÎÄ¼şÃû
-    bool marshalled = false;           // ÊÇ·ñ´¦ÀíÒÑĞòÁĞ»¯µÄ´úÂë¶ÔÏó
-    const char* version = nullptr;     // Python°æ±¾ºÅ
-    unsigned disasm_flags = 0;         // ·´»ã±à±êÖ¾Î»
-    std::ostream* pyc_output = &std::cout;  // Êä³öÁ÷£¬Ä¬ÈÏÎª±ê×¼Êä³ö
-    std::ofstream out_file;            // ÎÄ¼şÊä³öÁ÷
+    const char* infile = nullptr;      // è¾“å…¥æ–‡ä»¶å
+    bool marshalled = false;           // æ˜¯å¦å¤„ç†å·²åºåˆ—åŒ–çš„ä»£ç å¯¹è±¡
+    const char* version = nullptr;     // Pythonç‰ˆæœ¬å·
+    unsigned disasm_flags = 0;         // åæ±‡ç¼–æ ‡å¿—ä½
+    std::ostream* pyc_output = &std::cout;  // è¾“å‡ºæµï¼Œé»˜è®¤ä¸ºæ ‡å‡†è¾“å‡º
+    std::ofstream out_file;            // æ–‡ä»¶è¾“å‡ºæµ
 
-    // ½âÎöÃüÁîĞĞ²ÎÊı
+    // è§£æå‘½ä»¤è¡Œå‚æ•°
     for (int arg = 1; arg < argc; ++arg) {
         if (strcmp(argv[arg], "-o") == 0) {
-            // Ö¸¶¨Êä³öÎÄ¼ş
+            // æŒ‡å®šè¾“å‡ºæ–‡ä»¶
             if (arg + 1 < argc) {
                 const char* filename = argv[++arg];
                 out_file.open(filename, std::ios_base::out);
                 if (out_file.fail()) {
-                    fprintf(stderr, "´íÎó: ÎŞ·¨´ò¿ªÎÄ¼ş '%s' ½øĞĞĞ´Èë\n",
+                    fprintf(stderr, "é”™è¯¯: æ— æ³•æ‰“å¼€æ–‡ä»¶ '%s' è¿›è¡Œå†™å…¥\n",
                             filename);
                     return 1;
                 }
                 pyc_output = &out_file;
             } else {
-                fputs("´íÎó: Ñ¡Ïî '-o' ĞèÒªÖ¸¶¨ÎÄ¼şÃû\n", stderr);
+                fputs("é”™è¯¯: é€‰é¡¹ '-o' éœ€è¦æŒ‡å®šæ–‡ä»¶å\n", stderr);
                 return 1;
             }
         } else if (strcmp(argv[arg], "-c") == 0) {
-            // Ö¸¶¨´¦ÀíÒÑĞòÁĞ»¯µÄ´úÂë¶ÔÏó
+            // æŒ‡å®šå¤„ç†å·²åºåˆ—åŒ–çš„ä»£ç å¯¹è±¡
             marshalled = true;
         } else if (strcmp(argv[arg], "-v") == 0) {
-            // Ö¸¶¨Python°æ±¾
+            // æŒ‡å®šPythonç‰ˆæœ¬
             if (arg + 1 < argc) {
                 version = argv[++arg];
             } else {
-                fputs("´íÎó: Ñ¡Ïî '-v' ĞèÒªÖ¸¶¨°æ±¾ºÅ\n", stderr);
+                fputs("é”™è¯¯: é€‰é¡¹ '-v' éœ€è¦æŒ‡å®šç‰ˆæœ¬å·\n", stderr);
                 return 1;
             }
         } else if (strcmp(argv[arg], "--pycode-extra") == 0) {
-            // ÏÔÊ¾PyCode¶ÔÏóµÄ¶îÍâ×Ö¶Î
+            // æ˜¾ç¤ºPyCodeå¯¹è±¡çš„é¢å¤–å­—æ®µ
             disasm_flags |= Pyc::DISASM_PYCODE_VERBOSE;
         } else if (strcmp(argv[arg], "--show-caches") == 0) {
-            // ÔÚPython 3.11+·´»ã±àÖĞ²»Òş²ØCACHEÖ¸Áî
+            // åœ¨Python 3.11+åæ±‡ç¼–ä¸­ä¸éšè—CACHEæŒ‡ä»¤
             disasm_flags |= Pyc::DISASM_SHOW_CACHES;
         } else if (strcmp(argv[arg], "--help") == 0 || strcmp(argv[arg], "-h") == 0) {
-            // ÏÔÊ¾°ïÖúĞÅÏ¢
-            fprintf(stderr, "ÓÃ·¨: %s [Ñ¡Ïî] ÊäÈëÎÄ¼ş.pyc\n\n", argv[0]);
-            fputs("Ñ¡Ïî:\n", stderr);
-            fputs("  -o <ÎÄ¼şÃû>       ½«Êä³öĞ´Èëµ½<ÎÄ¼şÃû> (Ä¬ÈÏ: ±ê×¼Êä³ö)\n", stderr);
-            fputs("  -c                Ö¸¶¨¼ÓÔØÒÑ±àÒëµÄ´úÂë¶ÔÏó¡£ĞèÒªÉèÖÃ°æ±¾ºÅ\n", stderr);
-            fputs("  -v <x.y>          Ö¸¶¨Python°æ±¾ºÅÓÃÓÚ¼ÓÔØÒÑ±àÒëµÄ´úÂë¶ÔÏó\n", stderr);
-            fputs("  --pycode-extra    ÔÚPyCode¶ÔÏó×ª´¢ÖĞÏÔÊ¾¶îÍâ×Ö¶Î\n", stderr);
-            fputs("  --show-caches     ÔÚPython 3.11+·´»ã±àÖĞ²»Òş²ØCACHEÖ¸Áî\n", stderr);
-            fputs("  --help            ÏÔÊ¾´Ë°ïÖúĞÅÏ¢²¢ÍË³ö\n", stderr);
+            // æ˜¾ç¤ºå¸®åŠ©ä¿¡æ¯
+            fprintf(stderr, "ç”¨æ³•: %s [é€‰é¡¹] è¾“å…¥æ–‡ä»¶.pyc\n\n", argv[0]);
+            fputs("é€‰é¡¹:\n", stderr);
+            fputs("  -o <æ–‡ä»¶å>       å°†è¾“å‡ºå†™å…¥åˆ°<æ–‡ä»¶å> (é»˜è®¤: æ ‡å‡†è¾“å‡º)\n", stderr);
+            fputs("  -c                æŒ‡å®šåŠ è½½å·²ç¼–è¯‘çš„ä»£ç å¯¹è±¡ã€‚éœ€è¦è®¾ç½®ç‰ˆæœ¬å·\n", stderr);
+            fputs("  -v <x.y>          æŒ‡å®šPythonç‰ˆæœ¬å·ç”¨äºåŠ è½½å·²ç¼–è¯‘çš„ä»£ç å¯¹è±¡\n", stderr);
+            fputs("  --pycode-extra    åœ¨PyCodeå¯¹è±¡è½¬å‚¨ä¸­æ˜¾ç¤ºé¢å¤–å­—æ®µ\n", stderr);
+            fputs("  --show-caches     åœ¨Python 3.11+åæ±‡ç¼–ä¸­ä¸éšè—CACHEæŒ‡ä»¤\n", stderr);
+            fputs("  --help            æ˜¾ç¤ºæ­¤å¸®åŠ©ä¿¡æ¯å¹¶é€€å‡º\n", stderr);
             return 0;
         } else if (argv[arg][0] == '-') {
-            fprintf(stderr, "´íÎó: ÎŞ·¨Ê¶±ğµÄ²ÎÊı %s\n", argv[arg]);
+            fprintf(stderr, "é”™è¯¯: æ— æ³•è¯†åˆ«çš„å‚æ•° %s\n", argv[arg]);
             return 1;
         } else {
-            // ÊäÈëÎÄ¼ş
+            // è¾“å…¥æ–‡ä»¶
             infile = argv[arg];
         }
     }
 
-    // ¼ì²éÊÇ·ñÖ¸¶¨ÁËÊäÈëÎÄ¼ş
+    // æ£€æŸ¥æ˜¯å¦æŒ‡å®šäº†è¾“å…¥æ–‡ä»¶
     if (!infile) {
-        fputs("´íÎó: Î´Ö¸¶¨ÊäÈëÎÄ¼ş\n", stderr);
+        fputs("é”™è¯¯: æœªæŒ‡å®šè¾“å…¥æ–‡ä»¶\n", stderr);
         return 1;
     }
 
     PycModule mod;
     if (!marshalled) {
-        // ¼ÓÔØÆÕÍ¨.pycÎÄ¼ş
+        // åŠ è½½æ™®é€š.pycæ–‡ä»¶
         try {
             mod.loadFromFile(infile);
         } catch (std::exception &ex) {
-            fprintf(stderr, "·´»ã±à %s Ê±³ö´í: %s\n", infile, ex.what());
+            fprintf(stderr, "åæ±‡ç¼– %s æ—¶å‡ºé”™: %s\n", infile, ex.what());
             return 1;
         }
     } else {
-        // ¼ÓÔØÒÑĞòÁĞ»¯µÄ´úÂë¶ÔÏó
+        // åŠ è½½å·²åºåˆ—åŒ–çš„ä»£ç å¯¹è±¡
         if (!version) {
-            fputs("´íÎó: ´ò¿ªÔ­Ê¼´úÂë¶ÔÏóĞèÒªÖ¸¶¨Python°æ±¾ºÅ\n", stderr);
+            fputs("é”™è¯¯: æ‰“å¼€åŸå§‹ä»£ç å¯¹è±¡éœ€è¦æŒ‡å®šPythonç‰ˆæœ¬å·\n", stderr);
             return 1;
         }
         std::string s(version);
         auto dot = s.find('.');
         if (dot == std::string::npos || dot == s.size()-1) {
-            fputs("´íÎó: ÎŞ·¨½âÎö°æ±¾ºÅ×Ö·û´® (ÇëÊ¹ÓÃ x.y ¸ñÊ½)\n", stderr);
+            fputs("é”™è¯¯: æ— æ³•è§£æç‰ˆæœ¬å·å­—ç¬¦ä¸² (è¯·ä½¿ç”¨ x.y æ ¼å¼)\n", stderr);
             return 1;
         }
-        int major = std::stoi(s.substr(0, dot));  // Ö÷°æ±¾ºÅ
-        int minor = std::stoi(s.substr(dot+1, s.size()));  // ´Î°æ±¾ºÅ
+        int major = std::stoi(s.substr(0, dot));  // ä¸»ç‰ˆæœ¬å·
+        int minor = std::stoi(s.substr(dot+1, s.size()));  // æ¬¡ç‰ˆæœ¬å·
         mod.loadFromMarshalledFile(infile, major, minor);
     }
     
-    // ÌáÈ¡ÎÄ¼şÃû(²»º¬Â·¾¶)
+    // æå–æ–‡ä»¶å(ä¸å«è·¯å¾„)
     const char* dispname = strrchr(infile, PATHSEP);
     dispname = (dispname == NULL) ? infile : dispname + 1;
     
-    // Êä³öÎÄ¼şÍ·ĞÅÏ¢
+    // è¾“å‡ºæ–‡ä»¶å¤´ä¿¡æ¯
     formatted_print(*pyc_output, "%s (Python %d.%d%s)\n", dispname,
                     mod.majorVer(), mod.minorVer(),
                     (mod.majorVer() < 3 && mod.isUnicode()) ? " -U" : "");
     
-    // Ö´ĞĞ·´»ã±à
+    // æ‰§è¡Œåæ±‡ç¼–
     try {
         output_object(mod.code().try_cast<PycObject>(), &mod, 0, disasm_flags,
                       *pyc_output);
     } catch (std::exception& ex) {
-        fprintf(stderr, "·´»ã±à %s Ê±³ö´í: %s\n", infile, ex.what());
+        fprintf(stderr, "åæ±‡ç¼– %s æ—¶å‡ºé”™: %s\n", infile, ex.what());
         return 1;
     }
 

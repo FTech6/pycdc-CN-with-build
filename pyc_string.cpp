@@ -3,57 +3,57 @@
 #include "data.h"
 #include <stdexcept>
 
-// ¼ì²é×Ö·û´®ÊÇ·ñÎªASCII±àÂë
+// æ£€æŸ¥å­—ç¬¦ä¸²æ˜¯å¦ä¸ºASCIIç¼–ç 
 static bool check_ascii(const std::string& data)
 {
     auto cp = reinterpret_cast<const unsigned char*>(data.c_str());
     while (*cp) {
-        if (*cp & 0x80)  // ¼ì²é×î¸ßÎ»£¬Èç¹ûÎª1Ôò±íÊ¾·ÇASCII×Ö·û
+        if (*cp & 0x80)  // æ£€æŸ¥æœ€é«˜ä½ï¼Œå¦‚æœä¸º1åˆ™è¡¨ç¤ºéASCIIå­—ç¬¦
             return false;
         ++cp;
     }
     return true;
 }
 
-/* PycString - Python×Ö·û´®¶ÔÏó */
+/* PycString - Pythonå­—ç¬¦ä¸²å¯¹è±¡ */
 void PycString::load(PycData* stream, PycModule* mod)
 {
     if (type() == TYPE_STRINGREF) {
-        // ´¦Àí×Ö·û´®ÒıÓÃ£º´Óintern³ØÖĞ»ñÈ¡ÒÑ»º´æµÄ×Ö·û´®
+        // å¤„ç†å­—ç¬¦ä¸²å¼•ç”¨ï¼šä»internæ± ä¸­è·å–å·²ç¼“å­˜çš„å­—ç¬¦ä¸²
         PycRef<PycString> str = mod->getIntern(stream->get32());
         m_type = str->m_type;
         m_value = str->m_value;
     } else {
         int length;
-        // ¸ù¾İ×Ö·û´®ÀàĞÍÈ·¶¨³¤¶È×Ö¶Î´óĞ¡
+        // æ ¹æ®å­—ç¬¦ä¸²ç±»å‹ç¡®å®šé•¿åº¦å­—æ®µå¤§å°
         if (type() == TYPE_SHORT_ASCII || type() == TYPE_SHORT_ASCII_INTERNED)
-            length = stream->getByte();  // ¶Ì×Ö·û´®Ê¹ÓÃ1×Ö½Ú³¤¶È
+            length = stream->getByte();  // çŸ­å­—ç¬¦ä¸²ä½¿ç”¨1å­—èŠ‚é•¿åº¦
         else
-            length = stream->get32();    // ÆÕÍ¨×Ö·û´®Ê¹ÓÃ4×Ö½Ú³¤¶È
+            length = stream->get32();    // æ™®é€šå­—ç¬¦ä¸²ä½¿ç”¨4å­—èŠ‚é•¿åº¦
 
         if (length < 0)
-            throw std::bad_alloc();  // ³¤¶È²»ÄÜÎª¸ºÊı
+            throw std::bad_alloc();  // é•¿åº¦ä¸èƒ½ä¸ºè´Ÿæ•°
 
         m_value.resize(length);
         if (length) {
-            // ´ÓÊı¾İÁ÷ÖĞ¶ÁÈ¡×Ö·û´®ÄÚÈİ
+            // ä»æ•°æ®æµä¸­è¯»å–å­—ç¬¦ä¸²å†…å®¹
             stream->getBuffer(length, &m_value.front());
-            // ¼ì²éASCII×Ö·û´®ÀàĞÍµÄÓĞĞ§ĞÔ
+            // æ£€æŸ¥ASCIIå­—ç¬¦ä¸²ç±»å‹çš„æœ‰æ•ˆæ€§
             if (type() == TYPE_ASCII || type() == TYPE_ASCII_INTERNED ||
                     type() == TYPE_SHORT_ASCII || type() == TYPE_SHORT_ASCII_INTERNED) {
                 if (!check_ascii(m_value))
-                    throw std::runtime_error("ASCII×Ö·û´®ÖĞ°üº¬ÎŞĞ§×Ö½Ú");
+                    throw std::runtime_error("ASCIIå­—ç¬¦ä¸²ä¸­åŒ…å«æ— æ•ˆå­—èŠ‚");
             }
         }
 
-        // Èç¹ûÊÇinterned×Ö·û´®£¬½«ÆäÌí¼Óµ½Ä£¿éµÄintern³ØÖĞ
+        // å¦‚æœæ˜¯internedå­—ç¬¦ä¸²ï¼Œå°†å…¶æ·»åŠ åˆ°æ¨¡å—çš„internæ± ä¸­
         if (type() == TYPE_INTERNED || type() == TYPE_ASCII_INTERNED ||
                 type() == TYPE_SHORT_ASCII_INTERNED)
             mod->intern(this);
     }
 }
 
-// ±È½Ï×Ö·û´®¶ÔÏóÊÇ·ñÏàµÈ
+// æ¯”è¾ƒå­—ç¬¦ä¸²å¯¹è±¡æ˜¯å¦ç›¸ç­‰
 bool PycString::isEqual(PycRef<PycObject> obj) const
 {
     if (type() != obj.type())
@@ -63,115 +63,115 @@ bool PycString::isEqual(PycRef<PycObject> obj) const
     return isEqual(strObj->m_value);
 }
 
-// Êä³ö×Ö·û´®µ½Á÷ÖĞ
+// è¾“å‡ºå­—ç¬¦ä¸²åˆ°æµä¸­
 void PycString::print(std::ostream &pyc_output, PycModule* mod, bool triple,
                       const char* parent_f_string_quote)
 {
-    char prefix = 0;  // ×Ö·û´®Ç°×º£º'b'±íÊ¾×Ö½Ú´®£¬'u'±íÊ¾Unicode×Ö·û´®
+    char prefix = 0;  // å­—ç¬¦ä¸²å‰ç¼€ï¼š'b'è¡¨ç¤ºå­—èŠ‚ä¸²ï¼Œ'u'è¡¨ç¤ºUnicodeå­—ç¬¦ä¸²
     switch (type()) {
     case TYPE_STRING:
-        prefix = mod->strIsUnicode() ? 'b' : 0;  // ¸ù¾İÄ£¿éÉèÖÃ¾ö¶¨Ç°×º
+        prefix = mod->strIsUnicode() ? 'b' : 0;  // æ ¹æ®æ¨¡å—è®¾ç½®å†³å®šå‰ç¼€
         break;
     case PycObject::TYPE_UNICODE:
-        prefix = mod->strIsUnicode() ? 0 : 'u';  // Unicode×Ö·û´®¿ÉÄÜĞèÒª'u'Ç°×º
+        prefix = mod->strIsUnicode() ? 0 : 'u';  // Unicodeå­—ç¬¦ä¸²å¯èƒ½éœ€è¦'u'å‰ç¼€
         break;
     case PycObject::TYPE_INTERNED:
-        prefix = mod->internIsBytes() ? 'b' : 0;  // ¸ù¾İinternÀàĞÍ¾ö¶¨Ç°×º
+        prefix = mod->internIsBytes() ? 'b' : 0;  // æ ¹æ®internç±»å‹å†³å®šå‰ç¼€
         break;
     case PycObject::TYPE_ASCII:
     case PycObject::TYPE_ASCII_INTERNED:
     case PycObject::TYPE_SHORT_ASCII:
     case PycObject::TYPE_SHORT_ASCII_INTERNED:
-        // ÕâĞ©ÀàĞÍÔÚPython 3.4Ö®ºó²Å´æÔÚ£¬²»ĞèÒªÇ°×º
+        // è¿™äº›ç±»å‹åœ¨Python 3.4ä¹‹åæ‰å­˜åœ¨ï¼Œä¸éœ€è¦å‰ç¼€
         prefix = 0;
         break;
     default:
-        throw std::runtime_error("ÎŞĞ§µÄ×Ö·û´®ÀàĞÍ");
+        throw std::runtime_error("æ— æ•ˆçš„å­—ç¬¦ä¸²ç±»å‹");
     }
 
-    // Êä³ö×Ö·û´®Ç°×º
+    // è¾“å‡ºå­—ç¬¦ä¸²å‰ç¼€
     if (prefix != 0)
         pyc_output << prefix;
 
-    // ´¦Àí¿Õ×Ö·û´®
+    // å¤„ç†ç©ºå­—ç¬¦ä¸²
     if (m_value.empty()) {
         pyc_output << "''";
         return;
     }
 
-    // È·¶¨Ê×Ñ¡µÄÒıºÅ·ç¸ñ£¨Ä£ÄâPythonµÄ·½·¨£©
-    bool useQuotes = false;  // trueÊ¹ÓÃË«ÒıºÅ£¬falseÊ¹ÓÃµ¥ÒıºÅ
+    // ç¡®å®šé¦–é€‰çš„å¼•å·é£æ ¼ï¼ˆæ¨¡æ‹ŸPythonçš„æ–¹æ³•ï¼‰
+    bool useQuotes = false;  // trueä½¿ç”¨åŒå¼•å·ï¼Œfalseä½¿ç”¨å•å¼•å·
     if (!parent_f_string_quote) {
-        // Èç¹ûÃ»ÓĞ¸¸f-stringÒıºÅ£¬¸ù¾İÄÚÈİÑ¡ÔñÒıºÅ·ç¸ñ
+        // å¦‚æœæ²¡æœ‰çˆ¶f-stringå¼•å·ï¼Œæ ¹æ®å†…å®¹é€‰æ‹©å¼•å·é£æ ¼
         for (char ch : m_value) {
             if (ch == '\'') {
-                useQuotes = true;  // Èç¹û°üº¬µ¥ÒıºÅ£¬ÓÅÏÈÊ¹ÓÃË«ÒıºÅ
+                useQuotes = true;  // å¦‚æœåŒ…å«å•å¼•å·ï¼Œä¼˜å…ˆä½¿ç”¨åŒå¼•å·
             } else if (ch == '"') {
-                useQuotes = false;  // Èç¹û°üº¬Ë«ÒıºÅ£¬Ê¹ÓÃµ¥ÒıºÅ
+                useQuotes = false;  // å¦‚æœåŒ…å«åŒå¼•å·ï¼Œä½¿ç”¨å•å¼•å·
                 break;
             }
         }
     } else {
-        // Èç¹ûÓĞ¸¸f-stringÒıºÅ£¬Ê¹ÓÃÏà·´µÄÒıºÅ·ç¸ñ
+        // å¦‚æœæœ‰çˆ¶f-stringå¼•å·ï¼Œä½¿ç”¨ç›¸åçš„å¼•å·é£æ ¼
         useQuotes = parent_f_string_quote[0] == '"';
     }
 
-    // Êä³ö×Ö·û´®¿ªÊ¼ÒıºÅ
+    // è¾“å‡ºå­—ç¬¦ä¸²å¼€å§‹å¼•å·
     if (!parent_f_string_quote) {
         if (triple)
-            pyc_output << (useQuotes ? R"(""")" : "'''");  // ÈıÒıºÅ×Ö·û´®
+            pyc_output << (useQuotes ? R"(""")" : "'''");  // ä¸‰å¼•å·å­—ç¬¦ä¸²
         else
-            pyc_output << (useQuotes ? '"' : '\'');        // µ¥ÒıºÅ×Ö·û´®
+            pyc_output << (useQuotes ? '"' : '\'');        // å•å¼•å·å­—ç¬¦ä¸²
     }
     
-    // Êä³ö×Ö·û´®ÄÚÈİ£¬´¦Àí×ªÒå×Ö·û
+    // è¾“å‡ºå­—ç¬¦ä¸²å†…å®¹ï¼Œå¤„ç†è½¬ä¹‰å­—ç¬¦
     for (char ch : m_value) {
         if (static_cast<unsigned char>(ch) < 0x20 || ch == 0x7F) {
-            // ´¦Àí¿ØÖÆ×Ö·û
+            // å¤„ç†æ§åˆ¶å­—ç¬¦
             if (ch == '\r') {
-                pyc_output << "\\r";  // »Ø³µ·û
+                pyc_output << "\\r";  // å›è½¦ç¬¦
             } else if (ch == '\n') {
                 if (triple)
-                    pyc_output << '\n';  // ÈıÒıºÅ×Ö·û´®ÖĞ±£Áô»»ĞĞ
+                    pyc_output << '\n';  // ä¸‰å¼•å·å­—ç¬¦ä¸²ä¸­ä¿ç•™æ¢è¡Œ
                 else
-                    pyc_output << "\\n";  // ÆÕÍ¨×Ö·û´®ÖĞ×ªÒå»»ĞĞ
+                    pyc_output << "\\n";  // æ™®é€šå­—ç¬¦ä¸²ä¸­è½¬ä¹‰æ¢è¡Œ
             } else if (ch == '\t') {
-                pyc_output << "\\t";  // ÖÆ±í·û
+                pyc_output << "\\t";  // åˆ¶è¡¨ç¬¦
             } else {
-                // ÆäËû¿ØÖÆ×Ö·ûÊ¹ÓÃÊ®Áù½øÖÆ×ªÒå
+                // å…¶ä»–æ§åˆ¶å­—ç¬¦ä½¿ç”¨åå…­è¿›åˆ¶è½¬ä¹‰
                 formatted_print(pyc_output, "\\x%02x", (ch & 0xFF));
             }
         } else if (static_cast<unsigned char>(ch) >= 0x80) {
-            // ´¦Àí·ÇASCII×Ö·û
+            // å¤„ç†éASCIIå­—ç¬¦
             if (type() == TYPE_UNICODE) {
-                // Unicode×Ö·û´®ÒÔUTF-8´æ´¢£¬Ö±½ÓÊä³ö×Ö·û
+                // Unicodeå­—ç¬¦ä¸²ä»¥UTF-8å­˜å‚¨ï¼Œç›´æ¥è¾“å‡ºå­—ç¬¦
                 pyc_output << ch;
             } else {
-                // ×Ö½Ú×Ö·û´®ÖĞµÄ·ÇASCII×Ö·ûÊ¹ÓÃÊ®Áù½øÖÆ×ªÒå
+                // å­—èŠ‚å­—ç¬¦ä¸²ä¸­çš„éASCIIå­—ç¬¦ä½¿ç”¨åå…­è¿›åˆ¶è½¬ä¹‰
                 formatted_print(pyc_output, "\\x%02x", (ch & 0xFF));
             }
         } else {
-            // ´¦ÀíÆÕÍ¨ASCII×Ö·û
+            // å¤„ç†æ™®é€šASCIIå­—ç¬¦
             if (!useQuotes && ch == '\'')
-                pyc_output << R"(\')";  // ×ªÒåµ¥ÒıºÅ
+                pyc_output << R"(\')";  // è½¬ä¹‰å•å¼•å·
             else if (useQuotes && ch == '"')
-                pyc_output << R"(\")";  // ×ªÒåË«ÒıºÅ
+                pyc_output << R"(\")";  // è½¬ä¹‰åŒå¼•å·
             else if (ch == '\\')
-                pyc_output << R"(\\)";  // ×ªÒå·´Ğ±¸Ü
+                pyc_output << R"(\\)";  // è½¬ä¹‰åæ–œæ 
             else if (parent_f_string_quote && ch == '{')
-                pyc_output << "{{";     // f-stringÖĞµÄË«´óÀ¨ºÅ×ªÒå
+                pyc_output << "{{";     // f-stringä¸­çš„åŒå¤§æ‹¬å·è½¬ä¹‰
             else if (parent_f_string_quote && ch == '}')
-                pyc_output << "}}";     // f-stringÖĞµÄË«´óÀ¨ºÅ×ªÒå
+                pyc_output << "}}";     // f-stringä¸­çš„åŒå¤§æ‹¬å·è½¬ä¹‰
             else
-                pyc_output << ch;       // ÆÕÍ¨×Ö·ûÖ±½ÓÊä³ö
+                pyc_output << ch;       // æ™®é€šå­—ç¬¦ç›´æ¥è¾“å‡º
         }
     }
     
-    // Êä³ö×Ö·û´®½áÊøÒıºÅ
+    // è¾“å‡ºå­—ç¬¦ä¸²ç»“æŸå¼•å·
     if (!parent_f_string_quote) {
         if (triple)
-            pyc_output << (useQuotes ? R"(""")" : "'''");  // ÈıÒıºÅ½áÊø
+            pyc_output << (useQuotes ? R"(""")" : "'''");  // ä¸‰å¼•å·ç»“æŸ
         else
-            pyc_output << (useQuotes ? '"' : '\'');        // µ¥ÒıºÅ½áÊø
+            pyc_output << (useQuotes ? '"' : '\'');        // å•å¼•å·ç»“æŸ
     }
 }

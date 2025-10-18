@@ -4,50 +4,50 @@
 #include "ASTree.h"
 
 #ifdef WIN32
-#  define PATHSEP '\\'  // Windows Â·¾¶·Ö¸ô·û
+#  define PATHSEP '\\'  // Windows è·¯å¾„åˆ†éš”ç¬¦
 #else
-#  define PATHSEP '/'   // Unix/Linux Â·¾¶·Ö¸ô·û
+#  define PATHSEP '/'   // Unix/Linux è·¯å¾„åˆ†éš”ç¬¦
 #endif
 
 int main(int argc, char* argv[])
 {
-    const char* infile = nullptr;      // ÊäÈëÎÄ¼şÂ·¾¶
-    bool marshalled = false;           // ÊÇ·ñ¼ÓÔØ±àÒëµÄ´úÂë¶ÔÏó
-    const char* version = nullptr;     // Python °æ±¾ºÅ
-    std::ostream* pyc_output = &std::cout;  // Êä³öÁ÷£¬Ä¬ÈÏÎª±ê×¼Êä³ö
-    std::ofstream out_file;            // ÎÄ¼şÊä³öÁ÷
+    const char* infile = nullptr;      // è¾“å…¥æ–‡ä»¶è·¯å¾„
+    bool marshalled = false;           // æ˜¯å¦åŠ è½½ç¼–è¯‘çš„ä»£ç å¯¹è±¡
+    const char* version = nullptr;     // Python ç‰ˆæœ¬å·
+    std::ostream* pyc_output = &std::cout;  // è¾“å‡ºæµï¼Œé»˜è®¤ä¸ºæ ‡å‡†è¾“å‡º
+    std::ofstream out_file;            // æ–‡ä»¶è¾“å‡ºæµ
 
     for (int arg = 1; arg < argc; ++arg) {
         if (strcmp(argv[arg], "-o") == 0) {
             if (arg + 1 < argc) {
-                const char* filename = argv[++arg];  // »ñÈ¡Êä³öÎÄ¼şÃû
-                out_file.open(filename, std::ios_base::out);  // ´ò¿ªÎÄ¼ş
+                const char* filename = argv[++arg];  // è·å–è¾“å‡ºæ–‡ä»¶å
+                out_file.open(filename, std::ios_base::out);  // æ‰“å¼€æ–‡ä»¶
                 if (out_file.fail()) {
-                    fprintf(stderr, "´íÎó£º´ò¿ªÎÄ¼ş '%s' Ğ´ÈëÊ§°Ü\n",
+                    fprintf(stderr, "é”™è¯¯ï¼šæ‰“å¼€æ–‡ä»¶ '%s' å†™å…¥å¤±è´¥\n",
                             filename);
                     return 1;
                 }
-                pyc_output = &out_file;  // ½«Êä³öÁ÷Ö¸ÏòÎÄ¼ş
+                pyc_output = &out_file;  // å°†è¾“å‡ºæµæŒ‡å‘æ–‡ä»¶
             } else {
-                fputs("Ñ¡Ïî '-o' ĞèÒªÖ¸¶¨ÎÄ¼şÃû\n", stderr);
+                fputs("é€‰é¡¹ '-o' éœ€è¦æŒ‡å®šæ–‡ä»¶å\n", stderr);
                 return 1;
             }
         } else if (strcmp(argv[arg], "-c") == 0) {
-            marshalled = true;  // ±ê¼ÇÎª¼ÓÔØ±àÒëµÄ´úÂë¶ÔÏó
+            marshalled = true;  // æ ‡è®°ä¸ºåŠ è½½ç¼–è¯‘çš„ä»£ç å¯¹è±¡
         } else if (strcmp(argv[arg], "-v") == 0) {
             if (arg + 1 < argc) {
-                version = argv[++arg];  // »ñÈ¡ Python °æ±¾ºÅ
+                version = argv[++arg];  // è·å– Python ç‰ˆæœ¬å·
             } else {
-                fputs("Ñ¡Ïî '-v' ĞèÒªÖ¸¶¨°æ±¾ºÅ\n", stderr);
+                fputs("é€‰é¡¹ '-v' éœ€è¦æŒ‡å®šç‰ˆæœ¬å·\n", stderr);
                 return 1;
             }
         } else if (strcmp(argv[arg], "--help") == 0 || strcmp(argv[arg], "-h") == 0) {
-            fprintf(stderr, "ÓÃ·¨£º%s [Ñ¡Ïî] ÊäÈëÎÄ¼ş.pyc\n\n", argv[0]);
-            fputs("Ñ¡Ïî£º\n", stderr);
-            fputs("  -o <ÎÄ¼şÃû>    ½«Êä³öĞ´Èëµ½<ÎÄ¼şÃû> (Ä¬ÈÏ£º±ê×¼Êä³ö)\n", stderr);
-            fputs("  -c             Ö¸¶¨¼ÓÔØ±àÒëµÄ´úÂë¶ÔÏó¡£ĞèÒªÉèÖÃ°æ±¾ºÅ\n", stderr);
-            fputs("  -v <x.y>       Ö¸¶¨Python°æ±¾ÓÃÓÚ¼ÓÔØ±àÒëµÄ´úÂë¶ÔÏó\n", stderr);
-            fputs("  --help         ÏÔÊ¾´Ë°ïÖúĞÅÏ¢²¢ÍË³ö\n", stderr);
+            fprintf(stderr, "ç”¨æ³•ï¼š%s [é€‰é¡¹] è¾“å…¥æ–‡ä»¶.pyc\n\n", argv[0]);
+            fputs("é€‰é¡¹ï¼š\n", stderr);
+            fputs("  -o <æ–‡ä»¶å>    å°†è¾“å‡ºå†™å…¥åˆ°<æ–‡ä»¶å> (é»˜è®¤ï¼šæ ‡å‡†è¾“å‡º)\n", stderr);
+            fputs("  -c             æŒ‡å®šåŠ è½½ç¼–è¯‘çš„ä»£ç å¯¹è±¡ã€‚éœ€è¦è®¾ç½®ç‰ˆæœ¬å·\n", stderr);
+            fputs("  -v <x.y>       æŒ‡å®šPythonç‰ˆæœ¬ç”¨äºåŠ è½½ç¼–è¯‘çš„ä»£ç å¯¹è±¡\n", stderr);
+            fputs("  --help         æ˜¾ç¤ºæ­¤å¸®åŠ©ä¿¡æ¯å¹¶é€€å‡º\n", stderr);
             return 0;
         } else {
             infile = argv[arg];
@@ -55,7 +55,7 @@ int main(int argc, char* argv[])
     }
 
     if (!infile) {
-        fputs("Î´Ö¸¶¨ÊäÈëÎÄ¼ş\n", stderr);
+        fputs("æœªæŒ‡å®šè¾“å…¥æ–‡ä»¶\n", stderr);
         return 1;
     }
 
@@ -64,18 +64,18 @@ int main(int argc, char* argv[])
         try {
             mod.loadFromFile(infile);
         } catch (std::exception& ex) {
-            fprintf(stderr, "¼ÓÔØÎÄ¼ş %s Ê±³ö´í£º%s\n", infile, ex.what());
+            fprintf(stderr, "åŠ è½½æ–‡ä»¶ %s æ—¶å‡ºé”™ï¼š%s\n", infile, ex.what());
             return 1;
         }
     } else {
         if (!version) {
-            fputs("´ò¿ªÔ­Ê¼´úÂë¶ÔÏóĞèÒªÖ¸¶¨°æ±¾ºÅ\n", stderr);
+            fputs("æ‰“å¼€åŸå§‹ä»£ç å¯¹è±¡éœ€è¦æŒ‡å®šç‰ˆæœ¬å·\n", stderr);
             return 1;
         }
         std::string s(version);
         auto dot = s.find('.');
         if (dot == std::string::npos || dot == s.size()-1) {
-            fputs("ÎŞ·¨½âÎö°æ±¾×Ö·û´® (ÇëÊ¹ÓÃ x.y ¸ñÊ½)\n", stderr);
+            fputs("æ— æ³•è§£æç‰ˆæœ¬å­—ç¬¦ä¸² (è¯·ä½¿ç”¨ x.y æ ¼å¼)\n", stderr);
             return 1;
         }
         int major = std::stoi(s.substr(0, dot));
@@ -84,19 +84,19 @@ int main(int argc, char* argv[])
     }
 
     if (!mod.isValid()) {
-        fprintf(stderr, "ÎŞ·¨¼ÓÔØÎÄ¼ş %s\n", infile);
+        fprintf(stderr, "æ— æ³•åŠ è½½æ–‡ä»¶ %s\n", infile);
         return 1;
     }
     const char* dispname = strrchr(infile, PATHSEP);
     dispname = (dispname == NULL) ? infile : dispname + 1;
-    *pyc_output << "# Ô´´úÂëÓÉ Decompyle++ Éú³É\n";
-    formatted_print(*pyc_output, "# ÎÄ¼ş£º%s (Python %d.%d%s)\n\n", dispname,
+    *pyc_output << "# æºä»£ç ç”± Decompyle++ ç”Ÿæˆ\n";
+    formatted_print(*pyc_output, "# æ–‡ä»¶ï¼š%s (Python %d.%d%s)\n\n", dispname,
                     mod.majorVer(), mod.minorVer(),
                     (mod.majorVer() < 3 && mod.isUnicode()) ? " Unicode" : "");
     try {
         decompyle(mod.code(), &mod, *pyc_output);
     } catch (std::exception& ex) {
-        fprintf(stderr, "·´±àÒë %s Ê±³ö´í£º%s\n", infile, ex.what());
+        fprintf(stderr, "åç¼–è¯‘ %s æ—¶å‡ºé”™ï¼š%s\n", infile, ex.what());
         return 1;
     }
 
