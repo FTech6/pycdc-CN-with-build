@@ -33,8 +33,7 @@ Decompyle++ 包含两个主要工具：
 ## 下载预编译版本
 对于 Windows 用户，我们提供了预编译的可执行文件：
 1. 前往 [Release 页面](https://github.com/FTech6/pycdc-CN-with-build/releases)
-2. 下载最新版本的 `pycdc_windows_x64.zip`
-3. 解压后即可使用 `pycdc.exe` 和 `pycdas.exe`
+2. 下载最新版本的 `pycdc.exe` 和 `pycdas.exe`
 
 ## 从源代码构建
 
