@@ -1,6 +1,7 @@
 ﻿# Decompyle++ 汉化版(带有适用于 Windows 平台的可执行的已编译版本的程序(*.exe))
 **Python 字节码反汇编器/反编译器**
 
+注:本仓库的汉化与特调专为 Windows 平台设计，若您欲为其他平台进行构建，可能会出现兼容性问题
 本仓库提供 Decompyle++ (pycdc) 项目的完整汉化版本，包含源代码汉化和预编译的可执行文件。
 本仓库同时对字符串的输出逻辑进行了调整，并将整个项目修改为 UTF-8 编码，也对终端输出进行了 UTF-8 的适配与优化
 
@@ -33,8 +34,7 @@ Decompyle++ 包含两个主要工具：
 ## 下载预编译版本
 对于 Windows 用户，我们提供了预编译的可执行文件：
 1. 前往 [Release 页面](https://github.com/FTech6/pycdc-CN-with-build/releases)
-2. 下载最新版本的 `pycdc_windows_x64.zip`
-3. 解压后即可使用 `pycdc.exe` 和 `pycdas.exe`
+2. 下载最新版本的 `pycdc.exe` 和 `pycdas.exe`
 
 ## 从源代码构建
 
