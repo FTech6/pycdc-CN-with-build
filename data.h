@@ -1,4 +1,4 @@
-#ifndef _PYC_FILE_H
+﻿#ifndef _PYC_FILE_H
 #define _PYC_FILE_H
 
 #include <cstdio>

@@ -1,4 +1,4 @@
-/* No parameter word */
+﻿/* No parameter word */
 OPCODE(STOP_CODE)                       // Python 1.0 - 3.2
 OPCODE(POP_TOP)                         // Python 1.0 ->
 OPCODE(ROT_TWO)                         // Python 1.0 - 3.10

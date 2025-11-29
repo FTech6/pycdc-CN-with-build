@@ -1,19 +1,19 @@
-#include "ASTNode.h"
+ï»¿#include "ASTNode.h"
 #include "bytecode.h"
 
 /* ASTNodeList */
 void ASTNodeList::removeLast()
 {
-    // »ñÈ¡ÁĞ±íµÄ×îºóÒ»¸öÔªËØµÄµü´úÆ÷
+    // è·å–åˆ—è¡¨çš„æœ€åä¸€ä¸ªå…ƒç´ çš„è¿­ä»£å™¨
     list_t::iterator it = m_nodes.end();
     --it;
-    // É¾³ı×îºóÒ»¸öÔªËØ
+    // åˆ é™¤æœ€åä¸€ä¸ªå…ƒç´ 
     m_nodes.erase(it);
 }
 
 void ASTNodeList::removeFirst()
 {
-    // É¾³ıµÚÒ»¸öÔªËØ
+    // åˆ é™¤ç¬¬ä¸€ä¸ªå…ƒç´ 
     m_nodes.erase(m_nodes.begin());
 }
 
@@ -21,11 +21,11 @@ void ASTNodeList::removeFirst()
 /* ASTUnary */
 const char* ASTUnary::op_str() const
 {
-    // ¶¨Òåµ¥Ä¿ÔËËã·ûµÄ×Ö·û´®±íÊ¾
+    // å®šä¹‰å•ç›®è¿ç®—ç¬¦çš„å­—ç¬¦ä¸²è¡¨ç¤º
     static const char* s_op_strings[] = {
         "+", "-", "~", "not "
     };
-    // ·µ»Ø¶ÔÓ¦µÄÔËËã·û×Ö·û´®
+    // è¿”å›å¯¹åº”çš„è¿ç®—ç¬¦å­—ç¬¦ä¸²
     return s_op_strings[op()];
 }
 
@@ -33,20 +33,20 @@ const char* ASTUnary::op_str() const
 /* ASTBinary */
 const char* ASTBinary::op_str() const
 {
-    // ¶¨ÒåË«Ä¿ÔËËã·ûµÄ×Ö·û´®±íÊ¾
+    // å®šä¹‰åŒç›®è¿ç®—ç¬¦çš„å­—ç¬¦ä¸²è¡¨ç¤º
     static const char* s_op_strings[] = {
         ".", " ** ", " * ", " / ", " // ", " % ", " + ", " - ",
         " << ", " >> ", " & ", " ^ ", " | ", " and ", " or ", " @ ",
         " += ", " -= ", " *= ", " /= ", " %= ", " **= ", " <<= ",
         " >>= ", " &= ", " ^= ", " |= ", " //= ", " @= ", " <INVALID> "
     };
-    // ·µ»Ø¶ÔÓ¦µÄÔËËã·û×Ö·û´®
+    // è¿”å›å¯¹åº”çš„è¿ç®—ç¬¦å­—ç¬¦ä¸²
     return s_op_strings[op()];
 }
 
 ASTBinary::BinOp ASTBinary::from_opcode(int opcode)
 {
-    // ¸ù¾İ²Ù×÷Âë·µ»Ø¶ÔÓ¦µÄË«Ä¿ÔËËã·û
+    // æ ¹æ®æ“ä½œç è¿”å›å¯¹åº”çš„åŒç›®è¿ç®—ç¬¦
     switch (opcode) {
     case Pyc::BINARY_ADD:
         return BIN_ADD;
@@ -105,13 +105,13 @@ ASTBinary::BinOp ASTBinary::from_opcode(int opcode)
     case Pyc::INPLACE_MATRIX_MULTIPLY:
         return BIN_IP_MAT_MULTIPLY;
     default:
-        return BIN_INVALID; // Èç¹û²Ù×÷ÂëÎŞĞ§£¬·µ»ØÎŞĞ§µÄÔËËã·û
+        return BIN_INVALID; // å¦‚æœæ“ä½œç æ— æ•ˆï¼Œè¿”å›æ— æ•ˆçš„è¿ç®—ç¬¦
     }
 }
 
 ASTBinary::BinOp ASTBinary::from_binary_op(int operand)
 {
-    // ¸ù¾İ²Ù×÷Êı·µ»Ø¶ÔÓ¦µÄË«Ä¿ÔËËã·û
+    // æ ¹æ®æ“ä½œæ•°è¿”å›å¯¹åº”çš„åŒç›®è¿ç®—ç¬¦
     switch (operand) {
     case 0:
         return BIN_ADD;
@@ -166,7 +166,7 @@ ASTBinary::BinOp ASTBinary::from_binary_op(int operand)
     case 25:
         return BIN_IP_XOR;
     default:
-        return BIN_INVALID; // Èç¹û²Ù×÷Êı³¬³ö·¶Î§£¬·µ»ØÎŞĞ§µÄÔËËã·û
+        return BIN_INVALID; // å¦‚æœæ“ä½œæ•°è¶…å‡ºèŒƒå›´ï¼Œè¿”å›æ— æ•ˆçš„è¿ç®—ç¬¦
     }
 }
 
@@ -174,12 +174,12 @@ ASTBinary::BinOp ASTBinary::from_binary_op(int operand)
 /* ASTCompare */
 const char* ASTCompare::op_str() const
 {
-    // ¶¨Òå±È½ÏÔËËã·ûµÄ×Ö·û´®±íÊ¾
+    // å®šä¹‰æ¯”è¾ƒè¿ç®—ç¬¦çš„å­—ç¬¦ä¸²è¡¨ç¤º
     static const char* s_cmp_strings[] = {
         " < ", " <= ", " == ", " != ", " > ", " >= ", " in ", " not in ", " is ", " is not ",
         "<EXCEPTION MATCH>", "<BAD>"
     };
-    // ·µ»Ø¶ÔÓ¦µÄ±È½ÏÔËËã·û×Ö·û´®
+    // è¿”å›å¯¹åº”çš„æ¯”è¾ƒè¿ç®—ç¬¦å­—ç¬¦ä¸²
     return s_cmp_strings[op()];
 }
 
@@ -187,11 +187,11 @@ const char* ASTCompare::op_str() const
 /* ASTKeyword */
 const char* ASTKeyword::word_str() const
 {
-    // ¶¨Òå¹Ø¼ü×ÖµÄ×Ö·û´®±íÊ¾
+    // å®šä¹‰å…³é”®å­—çš„å­—ç¬¦ä¸²è¡¨ç¤º
     static const char* s_word_strings[] = {
         "pass", "break", "continue"
     };
-    // ·µ»Ø¶ÔÓ¦µÄ¹Ø¼ü×Ö×Ö·û´®
+    // è¿”å›å¯¹åº”çš„å…³é”®å­—å­—ç¬¦ä¸²
     return s_word_strings[key()];
 }
 
@@ -199,26 +199,26 @@ const char* ASTKeyword::word_str() const
 /* ASTBlock */
 void ASTBlock::removeLast()
 {
-    // »ñÈ¡¿éµÄ×îºóÒ»¸öÔªËØµÄµü´úÆ÷
+    // è·å–å—çš„æœ€åä¸€ä¸ªå…ƒç´ çš„è¿­ä»£å™¨
     list_t::iterator it = m_nodes.end();
     --it;
-    // É¾³ı×îºóÒ»¸öÔªËØ
+    // åˆ é™¤æœ€åä¸€ä¸ªå…ƒç´ 
     m_nodes.erase(it);
 }
 
 void ASTBlock::removeFirst()
 {
-    // É¾³ıµÚÒ»¸öÔªËØ
+    // åˆ é™¤ç¬¬ä¸€ä¸ªå…ƒç´ 
     m_nodes.erase(m_nodes.begin());
 }
 
 const char* ASTBlock::type_str() const
 {
-    // ¶¨Òå¿éÀàĞÍµÄ×Ö·û´®±íÊ¾
+    // å®šä¹‰å—ç±»å‹çš„å­—ç¬¦ä¸²è¡¨ç¤º
     static const char* s_type_strings[] = {
         "", "if", "else", "elif", "try", "CONTAINER", "except",
         "finally", "while", "for", "with", "async for"
     };
-    // ·µ»Ø¶ÔÓ¦µÄ¿éÀàĞÍ×Ö·û´®
+    // è¿”å›å¯¹åº”çš„å—ç±»å‹å­—ç¬¦ä¸²
     return s_type_strings[blktype()];
 }

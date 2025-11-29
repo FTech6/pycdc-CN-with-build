@@ -1,4 +1,4 @@
-#ifndef _PYC_SEQUENCE_H
+﻿#ifndef _PYC_SEQUENCE_H
 #define _PYC_SEQUENCE_H
 
 #include "pyc_object.h"

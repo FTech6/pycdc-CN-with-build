@@ -1,8 +1,12 @@
-cmake_minimum_required(VERSION 3.12)
+﻿cmake_minimum_required(VERSION 3.12)
 project(pycdc)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# 设置链接标志为静态链接
+# Set the link flag to static link.
+set(CMAKE_EXE_LINKER_FLAGS "-static")
 
 # Debug options.
 option(ENABLE_BLOCK_DEBUG "Enable block debugging" OFF)

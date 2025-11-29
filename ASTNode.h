@@ -1,55 +1,55 @@
-#ifndef _PYC_ASTNODE_H
+ï»¿#ifndef _PYC_ASTNODE_H
 #define _PYC_ASTNODE_H
 
 #include "pyc_module.h"
 #include <list>
 #include <deque>
 
-/* Óë PycObject ÀàËÆµÄ½Ó¿Ú£¬Òò´Ë PycRef ¿ÉÒÔÔÚÆäÉÏ¹¤×÷... *
- * µ«Õâ²¢*²»*ÒâÎ¶×ÅÁ½Õß¿ÉÒÔ»¥»»£¡ */
+/* ä¸ PycObject ç±»ä¼¼çš„æ¥å£ï¼Œå› æ­¤ PycRef å¯ä»¥åœ¨å…¶ä¸Šå·¥ä½œ... *
+ * ä½†è¿™å¹¶*ä¸*æ„å‘³ç€ä¸¤è€…å¯ä»¥äº’æ¢ï¼ */
 class ASTNode {
 public:
-    // AST½ÚµãÀàĞÍÃ¶¾Ù
+    // ASTèŠ‚ç‚¹ç±»å‹æšä¸¾
     enum Type {
-        NODE_INVALID,       // ÎŞĞ§½Úµã
-        NODE_NODELIST,      // ½ÚµãÁĞ±í
-        NODE_OBJECT,        // ¶ÔÏó½Úµã
-        NODE_UNARY,         // Ò»Ôª²Ù×÷½Úµã
-        NODE_BINARY,        // ¶şÔª²Ù×÷½Úµã
-        NODE_COMPARE,       // ±È½Ï²Ù×÷½Úµã
-        NODE_SLICE,         // ÇĞÆ¬²Ù×÷½Úµã
-        NODE_STORE,         // ´æ´¢²Ù×÷½Úµã
-        NODE_RETURN,        // ·µ»ØÓï¾ä½Úµã
-        NODE_NAME,          // Ãû³Æ½Úµã
-        NODE_DELETE,        // É¾³ı²Ù×÷½Úµã
-        NODE_FUNCTION,      // º¯Êı¶¨Òå½Úµã
-        NODE_CLASS,         // Àà¶¨Òå½Úµã
-        NODE_CALL,          // º¯Êıµ÷ÓÃ½Úµã
-        NODE_IMPORT,        // µ¼ÈëÓï¾ä½Úµã
-        NODE_TUPLE,         // Ôª×é½Úµã
-        NODE_LIST,          // ÁĞ±í½Úµã
-        NODE_SET,           // ¼¯ºÏ½Úµã
-        NODE_MAP,           // Ó³Éä½Úµã
-        NODE_SUBSCR,        // ÏÂ±ê²Ù×÷½Úµã
-        NODE_PRINT,         // ´òÓ¡Óï¾ä½Úµã
-        NODE_CONVERT,       // ×ª»»²Ù×÷½Úµã
-        NODE_KEYWORD,       // ¹Ø¼ü×Ö½Úµã
-        NODE_RAISE,         // Å×³öÒì³£½Úµã
-        NODE_EXEC,          // Ö´ĞĞÓï¾ä½Úµã
-        NODE_BLOCK,         // ´úÂë¿é½Úµã
-        NODE_COMPREHENSION, // ÍÆµ¼Ê½½Úµã
-        NODE_LOADBUILDCLASS,// ¼ÓÔØ¹¹½¨Àà½Úµã
-        NODE_AWAITABLE,     // ¿ÉµÈ´ı¶ÔÏó½Úµã
-        NODE_FORMATTEDVALUE,// ¸ñÊ½»¯Öµ½Úµã£¨f-string£©
-        NODE_JOINEDSTR,     // Á¬½Ó×Ö·û´®½Úµã
-        NODE_CONST_MAP,     // ³£Á¿Ó³Éä½Úµã
-        NODE_ANNOTATED_VAR, // ×¢½â±äÁ¿½Úµã
-        NODE_CHAINSTORE,    // Á´Ê½´æ´¢½Úµã
-        NODE_TERNARY,       // ÈıÔª²Ù×÷½Úµã
-        NODE_KW_NAMES_MAP,  // ¹Ø¼ü×ÖÃû³ÆÓ³Éä½Úµã
+        NODE_INVALID,       // æ— æ•ˆèŠ‚ç‚¹
+        NODE_NODELIST,      // èŠ‚ç‚¹åˆ—è¡¨
+        NODE_OBJECT,        // å¯¹è±¡èŠ‚ç‚¹
+        NODE_UNARY,         // ä¸€å…ƒæ“ä½œèŠ‚ç‚¹
+        NODE_BINARY,        // äºŒå…ƒæ“ä½œèŠ‚ç‚¹
+        NODE_COMPARE,       // æ¯”è¾ƒæ“ä½œèŠ‚ç‚¹
+        NODE_SLICE,         // åˆ‡ç‰‡æ“ä½œèŠ‚ç‚¹
+        NODE_STORE,         // å­˜å‚¨æ“ä½œèŠ‚ç‚¹
+        NODE_RETURN,        // è¿”å›è¯­å¥èŠ‚ç‚¹
+        NODE_NAME,          // åç§°èŠ‚ç‚¹
+        NODE_DELETE,        // åˆ é™¤æ“ä½œèŠ‚ç‚¹
+        NODE_FUNCTION,      // å‡½æ•°å®šä¹‰èŠ‚ç‚¹
+        NODE_CLASS,         // ç±»å®šä¹‰èŠ‚ç‚¹
+        NODE_CALL,          // å‡½æ•°è°ƒç”¨èŠ‚ç‚¹
+        NODE_IMPORT,        // å¯¼å…¥è¯­å¥èŠ‚ç‚¹
+        NODE_TUPLE,         // å…ƒç»„èŠ‚ç‚¹
+        NODE_LIST,          // åˆ—è¡¨èŠ‚ç‚¹
+        NODE_SET,           // é›†åˆèŠ‚ç‚¹
+        NODE_MAP,           // æ˜ å°„èŠ‚ç‚¹
+        NODE_SUBSCR,        // ä¸‹æ ‡æ“ä½œèŠ‚ç‚¹
+        NODE_PRINT,         // æ‰“å°è¯­å¥èŠ‚ç‚¹
+        NODE_CONVERT,       // è½¬æ¢æ“ä½œèŠ‚ç‚¹
+        NODE_KEYWORD,       // å…³é”®å­—èŠ‚ç‚¹
+        NODE_RAISE,         // æŠ›å‡ºå¼‚å¸¸èŠ‚ç‚¹
+        NODE_EXEC,          // æ‰§è¡Œè¯­å¥èŠ‚ç‚¹
+        NODE_BLOCK,         // ä»£ç å—èŠ‚ç‚¹
+        NODE_COMPREHENSION, // æ¨å¯¼å¼èŠ‚ç‚¹
+        NODE_LOADBUILDCLASS,// åŠ è½½æ„å»ºç±»èŠ‚ç‚¹
+        NODE_AWAITABLE,     // å¯ç­‰å¾…å¯¹è±¡èŠ‚ç‚¹
+        NODE_FORMATTEDVALUE,// æ ¼å¼åŒ–å€¼èŠ‚ç‚¹ï¼ˆf-stringï¼‰
+        NODE_JOINEDSTR,     // è¿æ¥å­—ç¬¦ä¸²èŠ‚ç‚¹
+        NODE_CONST_MAP,     // å¸¸é‡æ˜ å°„èŠ‚ç‚¹
+        NODE_ANNOTATED_VAR, // æ³¨è§£å˜é‡èŠ‚ç‚¹
+        NODE_CHAINSTORE,    // é“¾å¼å­˜å‚¨èŠ‚ç‚¹
+        NODE_TERNARY,       // ä¸‰å…ƒæ“ä½œèŠ‚ç‚¹
+        NODE_KW_NAMES_MAP,  // å…³é”®å­—åç§°æ˜ å°„èŠ‚ç‚¹
 
-        // ¿Õ½ÚµãÀàĞÍ
-        NODE_LOCALS,        // ±¾µØ±äÁ¿½Úµã
+        // ç©ºèŠ‚ç‚¹ç±»å‹
+        NODE_LOCALS,        // æœ¬åœ°å˜é‡èŠ‚ç‚¹
     };
 
     ASTNode(int type = NODE_INVALID) : m_refs(), m_type(type), m_processed() { }
@@ -57,28 +57,28 @@ public:
 
     int type() const { return internalGetType(this); }
 
-    bool processed() const { return m_processed; }    // ÊÇ·ñÒÑ´¦Àí
-    void setProcessed() { m_processed = true; }       // ±ê¼ÇÎªÒÑ´¦Àí
+    bool processed() const { return m_processed; }    // æ˜¯å¦å·²å¤„ç†
+    void setProcessed() { m_processed = true; }       // æ ‡è®°ä¸ºå·²å¤„ç†
 
 private:
-    int m_refs;         // ÒıÓÃ¼ÆÊı
-    int m_type;         // ½ÚµãÀàĞÍ
-    bool m_processed;   // ´¦Àí±êÖ¾
+    int m_refs;         // å¼•ç”¨è®¡æ•°
+    int m_type;         // èŠ‚ç‚¹ç±»å‹
+    bool m_processed;   // å¤„ç†æ ‡å¿—
 
-    // ÄÚ²¿»ñÈ¡ÀàĞÍµÄ·½·¨£¨ÓÃÓÚ¼æÈİclang£©
+    // å†…éƒ¨è·å–ç±»å‹çš„æ–¹æ³•ï¼ˆç”¨äºå…¼å®¹clangï¼‰
     static int internalGetType(const ASTNode *node)
     {
         return node ? node->m_type : NODE_INVALID;
     }
 
-    // ÄÚ²¿Ôö¼ÓÒıÓÃ¼ÆÊı
+    // å†…éƒ¨å¢åŠ å¼•ç”¨è®¡æ•°
     static void internalAddRef(ASTNode *node)
     {
         if (node)
             ++node->m_refs;
     }
 
-    // ÄÚ²¿¼õÉÙÒıÓÃ¼ÆÊı
+    // å†…éƒ¨å‡å°‘å¼•ç”¨è®¡æ•°
     static void internalDelRef(ASTNode *node)
     {
         if (node && --node->m_refs == 0)
@@ -86,12 +86,12 @@ private:
     }
 
 public:
-    void addRef() { internalAddRef(this); }    // Ôö¼ÓÒıÓÃ¼ÆÊı
-    void delRef() { internalDelRef(this); }    // ¼õÉÙÒıÓÃ¼ÆÊı
+    void addRef() { internalAddRef(this); }    // å¢åŠ å¼•ç”¨è®¡æ•°
+    void delRef() { internalDelRef(this); }    // å‡å°‘å¼•ç”¨è®¡æ•°
 };
 
 
-// AST½ÚµãÁĞ±íÀà
+// ASTèŠ‚ç‚¹åˆ—è¡¨ç±»
 class ASTNodeList : public ASTNode {
 public:
     typedef std::list<PycRef<ASTNode>> list_t;
@@ -100,169 +100,169 @@ public:
         : ASTNode(NODE_NODELIST), m_nodes(std::move(nodes)) { }
 
     const list_t& nodes() const { return m_nodes; }
-    void removeFirst();     // ÒÆ³ıµÚÒ»¸ö½Úµã
-    void removeLast();      // ÒÆ³ı×îºóÒ»¸ö½Úµã
-    void append(PycRef<ASTNode> node) { m_nodes.emplace_back(std::move(node)); }  // Ìí¼Ó½Úµã
+    void removeFirst();     // ç§»é™¤ç¬¬ä¸€ä¸ªèŠ‚ç‚¹
+    void removeLast();      // ç§»é™¤æœ€åä¸€ä¸ªèŠ‚ç‚¹
+    void append(PycRef<ASTNode> node) { m_nodes.emplace_back(std::move(node)); }  // æ·»åŠ èŠ‚ç‚¹
 
 protected:
     ASTNodeList(list_t nodes, ASTNode::Type type)
         : ASTNode(type), m_nodes(std::move(nodes)) { }
 
 private:
-    list_t m_nodes;  // ½ÚµãÁĞ±í
+    list_t m_nodes;  // èŠ‚ç‚¹åˆ—è¡¨
 };
 
 
-// Á´Ê½´æ´¢½ÚµãÀà£¨ÓÃÓÚÁ¬Ğø¸³Öµ£©
+// é“¾å¼å­˜å‚¨èŠ‚ç‚¹ç±»ï¼ˆç”¨äºè¿ç»­èµ‹å€¼ï¼‰
 class ASTChainStore : public ASTNodeList {
 public:
     ASTChainStore(list_t nodes, PycRef<ASTNode> src)
         : ASTNodeList(nodes, NODE_CHAINSTORE), m_src(std::move(src)) { }
     
-    PycRef<ASTNode> src() const { return m_src; }  // »ñÈ¡Ô´½Úµã
+    PycRef<ASTNode> src() const { return m_src; }  // è·å–æºèŠ‚ç‚¹
 
 private:
-    PycRef<ASTNode> m_src;  // Ô´½Úµã
+    PycRef<ASTNode> m_src;  // æºèŠ‚ç‚¹
 };
 
 
-// Python¶ÔÏó°ü×°½ÚµãÀà
+// Pythonå¯¹è±¡åŒ…è£…èŠ‚ç‚¹ç±»
 class ASTObject : public ASTNode {
 public:
     ASTObject(PycRef<PycObject> obj)
         : ASTNode(NODE_OBJECT), m_obj(std::move(obj)) { }
 
-    PycRef<PycObject> object() const { return m_obj; }  // »ñÈ¡Python¶ÔÏó
+    PycRef<PycObject> object() const { return m_obj; }  // è·å–Pythonå¯¹è±¡
 
 private:
-    PycRef<PycObject> m_obj;  // Python¶ÔÏóÒıÓÃ
+    PycRef<PycObject> m_obj;  // Pythonå¯¹è±¡å¼•ç”¨
 };
 
 
-// Ò»Ôª²Ù×÷½ÚµãÀà
+// ä¸€å…ƒæ“ä½œèŠ‚ç‚¹ç±»
 class ASTUnary : public ASTNode {
 public:
-    // Ò»Ôª²Ù×÷·ûÃ¶¾Ù
+    // ä¸€å…ƒæ“ä½œç¬¦æšä¸¾
     enum UnOp {
-        UN_POSITIVE,   // ÕıºÅ +
-        UN_NEGATIVE,   // ¸ººÅ -
-        UN_INVERT,     // °´Î»È¡·´ ~
-        UN_NOT         // Âß¼­·Ç not
+        UN_POSITIVE,   // æ­£å· +
+        UN_NEGATIVE,   // è´Ÿå· -
+        UN_INVERT,     // æŒ‰ä½å–å ~
+        UN_NOT         // é€»è¾‘é not
     };
 
     ASTUnary(PycRef<ASTNode> operand, int op)
         : ASTNode(NODE_UNARY), m_op(op), m_operand(std::move(operand)) { }
 
-    PycRef<ASTNode> operand() const { return m_operand; }  // »ñÈ¡²Ù×÷Êı
-    int op() const { return m_op; }                        // »ñÈ¡²Ù×÷·û
-    virtual const char* op_str() const;                    // »ñÈ¡²Ù×÷·û×Ö·û´®±íÊ¾
+    PycRef<ASTNode> operand() const { return m_operand; }  // è·å–æ“ä½œæ•°
+    int op() const { return m_op; }                        // è·å–æ“ä½œç¬¦
+    virtual const char* op_str() const;                    // è·å–æ“ä½œç¬¦å­—ç¬¦ä¸²è¡¨ç¤º
 
 protected:
-    int m_op;  // ²Ù×÷·û
+    int m_op;  // æ“ä½œç¬¦
 
 private:
-    PycRef<ASTNode> m_operand;  // ²Ù×÷Êı½Úµã
+    PycRef<ASTNode> m_operand;  // æ“ä½œæ•°èŠ‚ç‚¹
 };
 
 
-// ¶şÔª²Ù×÷½ÚµãÀà
+// äºŒå…ƒæ“ä½œèŠ‚ç‚¹ç±»
 class ASTBinary : public ASTNode {
 public:
-    // ¶şÔª²Ù×÷·ûÃ¶¾Ù
+    // äºŒå…ƒæ“ä½œç¬¦æšä¸¾
     enum BinOp {
-        BIN_ATTR,           // ÊôĞÔ·ÃÎÊ .
-        BIN_POWER,          // ÃİÔËËã **
-        BIN_MULTIPLY,       // ³Ë·¨ *
-        BIN_DIVIDE,         // ³ı·¨ /
-        BIN_FLOOR_DIVIDE,   // Õû³ı //
-        BIN_MODULO,         // È¡Ä£ %
-        BIN_ADD,            // ¼Ó·¨ +
-        BIN_SUBTRACT,       // ¼õ·¨ -
-        BIN_LSHIFT,         // ×óÒÆÎ» <<
-        BIN_RSHIFT,         // ÓÒÒÆÎ» >>
-        BIN_AND,            // °´Î»Óë &
-        BIN_XOR,            // °´Î»Òì»ò ^
-        BIN_OR,             // °´Î»»ò |
-        BIN_LOG_AND,        // Âß¼­Óë and
-        BIN_LOG_OR,         // Âß¼­»ò or
-        BIN_MAT_MULTIPLY,   // ¾ØÕó³Ë·¨ @
+        BIN_ATTR,           // å±æ€§è®¿é—® .
+        BIN_POWER,          // å¹‚è¿ç®— **
+        BIN_MULTIPLY,       // ä¹˜æ³• *
+        BIN_DIVIDE,         // é™¤æ³• /
+        BIN_FLOOR_DIVIDE,   // æ•´é™¤ //
+        BIN_MODULO,         // å–æ¨¡ %
+        BIN_ADD,            // åŠ æ³• +
+        BIN_SUBTRACT,       // å‡æ³• -
+        BIN_LSHIFT,         // å·¦ç§»ä½ <<
+        BIN_RSHIFT,         // å³ç§»ä½ >>
+        BIN_AND,            // æŒ‰ä½ä¸ &
+        BIN_XOR,            // æŒ‰ä½å¼‚æˆ– ^
+        BIN_OR,             // æŒ‰ä½æˆ– |
+        BIN_LOG_AND,        // é€»è¾‘ä¸ and
+        BIN_LOG_OR,         // é€»è¾‘æˆ– or
+        BIN_MAT_MULTIPLY,   // çŸ©é˜µä¹˜æ³• @
         
-        /* Ô­µØ²Ù×÷ */
-        BIN_IP_ADD,              // Ô­µØ¼Ó·¨ +=
-        BIN_IP_SUBTRACT,         // Ô­µØ¼õ·¨ -=
-        BIN_IP_MULTIPLY,         // Ô­µØ³Ë·¨ *=
-        BIN_IP_DIVIDE,           // Ô­µØ³ı·¨ /=
-        BIN_IP_MODULO,           // Ô­µØÈ¡Ä£ %=
-        BIN_IP_POWER,            // Ô­µØÃİÔËËã **=
-        BIN_IP_LSHIFT,           // Ô­µØ×óÒÆÎ» <<=
-        BIN_IP_RSHIFT,           // Ô­µØÓÒÒÆÎ» >>=
-        BIN_IP_AND,              // Ô­µØ°´Î»Óë &=
-        BIN_IP_XOR,              // Ô­µØ°´Î»Òì»ò ^=
-        BIN_IP_OR,               // Ô­µØ°´Î»»ò |=
-        BIN_IP_FLOOR_DIVIDE,     // Ô­µØÕû³ı //=
-        BIN_IP_MAT_MULTIPLY,     // Ô­µØ¾ØÕó³Ë·¨ @=
+        /* åŸåœ°æ“ä½œ */
+        BIN_IP_ADD,              // åŸåœ°åŠ æ³• +=
+        BIN_IP_SUBTRACT,         // åŸåœ°å‡æ³• -=
+        BIN_IP_MULTIPLY,         // åŸåœ°ä¹˜æ³• *=
+        BIN_IP_DIVIDE,           // åŸåœ°é™¤æ³• /=
+        BIN_IP_MODULO,           // åŸåœ°å–æ¨¡ %=
+        BIN_IP_POWER,            // åŸåœ°å¹‚è¿ç®— **=
+        BIN_IP_LSHIFT,           // åŸåœ°å·¦ç§»ä½ <<=
+        BIN_IP_RSHIFT,           // åŸåœ°å³ç§»ä½ >>=
+        BIN_IP_AND,              // åŸåœ°æŒ‰ä½ä¸ &=
+        BIN_IP_XOR,              // åŸåœ°æŒ‰ä½å¼‚æˆ– ^=
+        BIN_IP_OR,               // åŸåœ°æŒ‰ä½æˆ– |=
+        BIN_IP_FLOOR_DIVIDE,     // åŸåœ°æ•´é™¤ //=
+        BIN_IP_MAT_MULTIPLY,     // åŸåœ°çŸ©é˜µä¹˜æ³• @=
         
-        /* ´íÎóÇé¿ö */
-        BIN_INVALID         // ÎŞĞ§²Ù×÷
+        /* é”™è¯¯æƒ…å†µ */
+        BIN_INVALID         // æ— æ•ˆæ“ä½œ
     };
 
     ASTBinary(PycRef<ASTNode> left, PycRef<ASTNode> right, int op,
               int type = NODE_BINARY)
         : ASTNode(type), m_op(op), m_left(std::move(left)), m_right(std::move(right)) { }
 
-    PycRef<ASTNode> left() const { return m_left; }        // »ñÈ¡×ó²Ù×÷Êı
-    PycRef<ASTNode> right() const { return m_right; }      // »ñÈ¡ÓÒ²Ù×÷Êı
-    int op() const { return m_op; }                        // »ñÈ¡²Ù×÷·û
-    bool is_inplace() const { return m_op >= BIN_IP_ADD; } // ÊÇ·ñÎªÔ­µØ²Ù×÷
-    virtual const char* op_str() const;                    // »ñÈ¡²Ù×÷·û×Ö·û´®±íÊ¾
+    PycRef<ASTNode> left() const { return m_left; }        // è·å–å·¦æ“ä½œæ•°
+    PycRef<ASTNode> right() const { return m_right; }      // è·å–å³æ“ä½œæ•°
+    int op() const { return m_op; }                        // è·å–æ“ä½œç¬¦
+    bool is_inplace() const { return m_op >= BIN_IP_ADD; } // æ˜¯å¦ä¸ºåŸåœ°æ“ä½œ
+    virtual const char* op_str() const;                    // è·å–æ“ä½œç¬¦å­—ç¬¦ä¸²è¡¨ç¤º
 
-    static BinOp from_opcode(int opcode);                  // ´Ó²Ù×÷Âë×ª»»
-    static BinOp from_binary_op(int operand);              // ´Ó²Ù×÷Êı×ª»»
+    static BinOp from_opcode(int opcode);                  // ä»æ“ä½œç è½¬æ¢
+    static BinOp from_binary_op(int operand);              // ä»æ“ä½œæ•°è½¬æ¢
 
 protected:
-    int m_op;  // ²Ù×÷·û
+    int m_op;  // æ“ä½œç¬¦
 
 private:
-    PycRef<ASTNode> m_left;   // ×ó²Ù×÷Êı
-    PycRef<ASTNode> m_right;  // ÓÒ²Ù×÷Êı
+    PycRef<ASTNode> m_left;   // å·¦æ“ä½œæ•°
+    PycRef<ASTNode> m_right;  // å³æ“ä½œæ•°
 };
 
 
-// ±È½Ï²Ù×÷½ÚµãÀà
+// æ¯”è¾ƒæ“ä½œèŠ‚ç‚¹ç±»
 class ASTCompare : public ASTBinary {
 public:
-    // ±È½Ï²Ù×÷·ûÃ¶¾Ù
+    // æ¯”è¾ƒæ“ä½œç¬¦æšä¸¾
     enum CompareOp {
-        CMP_LESS,           // Ğ¡ÓÚ <
-        CMP_LESS_EQUAL,     // Ğ¡ÓÚµÈÓÚ <=
-        CMP_EQUAL,          // µÈÓÚ ==
-        CMP_NOT_EQUAL,      // ²»µÈÓÚ !=
-        CMP_GREATER,        // ´óÓÚ >
-        CMP_GREATER_EQUAL,  // ´óÓÚµÈÓÚ >=
-        CMP_IN,             // °üº¬ in
-        CMP_NOT_IN,         // ²»°üº¬ not in
-        CMP_IS,             // ÊÇ is
-        CMP_IS_NOT,         // ²»ÊÇ is not
-        CMP_EXCEPTION,      // Òì³£Æ¥Åä
-        CMP_BAD             // ´íÎóµÄ±È½Ï
+        CMP_LESS,           // å°äº <
+        CMP_LESS_EQUAL,     // å°äºç­‰äº <=
+        CMP_EQUAL,          // ç­‰äº ==
+        CMP_NOT_EQUAL,      // ä¸ç­‰äº !=
+        CMP_GREATER,        // å¤§äº >
+        CMP_GREATER_EQUAL,  // å¤§äºç­‰äº >=
+        CMP_IN,             // åŒ…å« in
+        CMP_NOT_IN,         // ä¸åŒ…å« not in
+        CMP_IS,             // æ˜¯ is
+        CMP_IS_NOT,         // ä¸æ˜¯ is not
+        CMP_EXCEPTION,      // å¼‚å¸¸åŒ¹é…
+        CMP_BAD             // é”™è¯¯çš„æ¯”è¾ƒ
     };
 
     ASTCompare(PycRef<ASTNode> left, PycRef<ASTNode> right, int op)
         : ASTBinary(std::move(left), std::move(right), op, NODE_COMPARE) { }
 
-    const char* op_str() const override;  // ÖØĞ´²Ù×÷·û×Ö·û´®±íÊ¾
+    const char* op_str() const override;  // é‡å†™æ“ä½œç¬¦å­—ç¬¦ä¸²è¡¨ç¤º
 };
 
 
-// ÇĞÆ¬²Ù×÷½ÚµãÀà
+// åˆ‡ç‰‡æ“ä½œèŠ‚ç‚¹ç±»
 class ASTSlice : public ASTBinary {
 public:
-    // ÇĞÆ¬²Ù×÷ÀàĞÍÃ¶¾Ù
+    // åˆ‡ç‰‡æ“ä½œç±»å‹æšä¸¾
     enum SliceOp {
-        SLICE0,  // ¼òµ¥ÇĞÆ¬ [:]
-        SLICE1,  // ÆğÊ¼ÇĞÆ¬ [start:]
-        SLICE2,  // ½áÊøÇĞÆ¬ [:end]
-        SLICE3   // ·¶Î§ÇĞÆ¬ [start:end]
+        SLICE0,  // ç®€å•åˆ‡ç‰‡ [:]
+        SLICE1,  // èµ·å§‹åˆ‡ç‰‡ [start:]
+        SLICE2,  // ç»“æŸåˆ‡ç‰‡ [:end]
+        SLICE3   // èŒƒå›´åˆ‡ç‰‡ [start:end]
     };
 
     ASTSlice(int op, PycRef<ASTNode> left = {}, PycRef<ASTNode> right = {})
@@ -270,70 +270,70 @@ public:
 };
 
 
-// ´æ´¢²Ù×÷½ÚµãÀà
+// å­˜å‚¨æ“ä½œèŠ‚ç‚¹ç±»
 class ASTStore : public ASTNode {
 public:
     ASTStore(PycRef<ASTNode> src, PycRef<ASTNode> dest)
         : ASTNode(NODE_STORE), m_src(std::move(src)), m_dest(std::move(dest)) { }
 
-    PycRef<ASTNode> src() const { return m_src; }   // »ñÈ¡Ô´½Úµã
-    PycRef<ASTNode> dest() const { return m_dest; } // »ñÈ¡Ä¿±ê½Úµã
+    PycRef<ASTNode> src() const { return m_src; }   // è·å–æºèŠ‚ç‚¹
+    PycRef<ASTNode> dest() const { return m_dest; } // è·å–ç›®æ ‡èŠ‚ç‚¹
 
 private:
-    PycRef<ASTNode> m_src;   // Ô´½Úµã
-    PycRef<ASTNode> m_dest;  // Ä¿±ê½Úµã
+    PycRef<ASTNode> m_src;   // æºèŠ‚ç‚¹
+    PycRef<ASTNode> m_dest;  // ç›®æ ‡èŠ‚ç‚¹
 };
 
 
-// ·µ»ØÓï¾ä½ÚµãÀà
+// è¿”å›è¯­å¥èŠ‚ç‚¹ç±»
 class ASTReturn : public ASTNode {
 public:
-    // ·µ»ØÀàĞÍÃ¶¾Ù
+    // è¿”å›ç±»å‹æšä¸¾
     enum RetType {
-        RETURN,      // ÆÕÍ¨·µ»Ø
-        YIELD,       // Éú³ÉÆ÷ yield
-        YIELD_FROM   // Éú³ÉÆ÷ yield from
+        RETURN,      // æ™®é€šè¿”å›
+        YIELD,       // ç”Ÿæˆå™¨ yield
+        YIELD_FROM   // ç”Ÿæˆå™¨ yield from
     };
 
     ASTReturn(PycRef<ASTNode> value, RetType rettype = RETURN)
         : ASTNode(NODE_RETURN), m_value(std::move(value)), m_rettype(rettype) { }
 
-    PycRef<ASTNode> value() const { return m_value; }    // »ñÈ¡·µ»ØÖµ
-    RetType rettype() const { return m_rettype; }        // »ñÈ¡·µ»ØÀàĞÍ
+    PycRef<ASTNode> value() const { return m_value; }    // è·å–è¿”å›å€¼
+    RetType rettype() const { return m_rettype; }        // è·å–è¿”å›ç±»å‹
 
 private:
-    PycRef<ASTNode> m_value;    // ·µ»ØÖµ½Úµã
-    RetType m_rettype;          // ·µ»ØÀàĞÍ
+    PycRef<ASTNode> m_value;    // è¿”å›å€¼èŠ‚ç‚¹
+    RetType m_rettype;          // è¿”å›ç±»å‹
 };
 
 
-// Ãû³Æ½ÚµãÀà
+// åç§°èŠ‚ç‚¹ç±»
 class ASTName : public ASTNode {
 public:
     ASTName(PycRef<PycString> name)
         : ASTNode(NODE_NAME), m_name(std::move(name)) { }
 
-    PycRef<PycString> name() const { return m_name; }  // »ñÈ¡Ãû³Æ
+    PycRef<PycString> name() const { return m_name; }  // è·å–åç§°
 
 private:
-    PycRef<PycString> m_name;  // Ãû³Æ×Ö·û´®
+    PycRef<PycString> m_name;  // åç§°å­—ç¬¦ä¸²
 };
 
 
-// É¾³ı²Ù×÷½ÚµãÀà
+// åˆ é™¤æ“ä½œèŠ‚ç‚¹ç±»
 class ASTDelete : public ASTNode {
 public:
     ASTDelete(PycRef<ASTNode> value)
         : ASTNode(NODE_DELETE), m_value(std::move(value)) { }
 
-    PycRef<ASTNode> value() const { return m_value; }  // »ñÈ¡ÒªÉ¾³ıµÄÖµ
+    PycRef<ASTNode> value() const { return m_value; }  // è·å–è¦åˆ é™¤çš„å€¼
 
 private:
-    PycRef<ASTNode> m_value;  // ÒªÉ¾³ıµÄÖµ½Úµã
+    PycRef<ASTNode> m_value;  // è¦åˆ é™¤çš„å€¼èŠ‚ç‚¹
 };
 
 
-// º¯Êı¶¨Òå½ÚµãÀà
+// å‡½æ•°å®šä¹‰èŠ‚ç‚¹ç±»
 class ASTFunction : public ASTNode {
 public:
     typedef std::list<PycRef<ASTNode>> defarg_t;
@@ -342,67 +342,67 @@ public:
         : ASTNode(NODE_FUNCTION), m_code(std::move(code)),
           m_defargs(std::move(defArgs)), m_kwdefargs(std::move(kwDefArgs)) { }
 
-    PycRef<ASTNode> code() const { return m_code; }                // »ñÈ¡º¯Êı´úÂë
-    const defarg_t& defargs() const { return m_defargs; }          // »ñÈ¡Ä¬ÈÏ²ÎÊı
-    const defarg_t& kwdefargs() const { return m_kwdefargs; }      // »ñÈ¡¹Ø¼ü×ÖÄ¬ÈÏ²ÎÊı
+    PycRef<ASTNode> code() const { return m_code; }                // è·å–å‡½æ•°ä»£ç 
+    const defarg_t& defargs() const { return m_defargs; }          // è·å–é»˜è®¤å‚æ•°
+    const defarg_t& kwdefargs() const { return m_kwdefargs; }      // è·å–å…³é”®å­—é»˜è®¤å‚æ•°
 
 private:
-    PycRef<ASTNode> m_code;        // º¯Êı´úÂë½Úµã
-    defarg_t m_defargs;            // Ä¬ÈÏ²ÎÊıÁĞ±í
-    defarg_t m_kwdefargs;          // ¹Ø¼ü×ÖÄ¬ÈÏ²ÎÊıÁĞ±í
+    PycRef<ASTNode> m_code;        // å‡½æ•°ä»£ç èŠ‚ç‚¹
+    defarg_t m_defargs;            // é»˜è®¤å‚æ•°åˆ—è¡¨
+    defarg_t m_kwdefargs;          // å…³é”®å­—é»˜è®¤å‚æ•°åˆ—è¡¨
 };
 
 
-// Àà¶¨Òå½ÚµãÀà
+// ç±»å®šä¹‰èŠ‚ç‚¹ç±»
 class ASTClass : public ASTNode {
 public:
     ASTClass(PycRef<ASTNode> code, PycRef<ASTNode> bases, PycRef<ASTNode> name)
         : ASTNode(NODE_CLASS), m_code(std::move(code)), m_bases(std::move(bases)),
           m_name(std::move(name)) { }
 
-    PycRef<ASTNode> code() const { return m_code; }   // »ñÈ¡Àà´úÂë
-    PycRef<ASTNode> bases() const { return m_bases; } // »ñÈ¡»ùÀàÁĞ±í
-    PycRef<ASTNode> name() const { return m_name; }   // »ñÈ¡ÀàÃû
+    PycRef<ASTNode> code() const { return m_code; }   // è·å–ç±»ä»£ç 
+    PycRef<ASTNode> bases() const { return m_bases; } // è·å–åŸºç±»åˆ—è¡¨
+    PycRef<ASTNode> name() const { return m_name; }   // è·å–ç±»å
 
 private:
-    PycRef<ASTNode> m_code;   // Àà´úÂë½Úµã
-    PycRef<ASTNode> m_bases;  // »ùÀàÁĞ±í½Úµã
-    PycRef<ASTNode> m_name;   // ÀàÃû½Úµã
+    PycRef<ASTNode> m_code;   // ç±»ä»£ç èŠ‚ç‚¹
+    PycRef<ASTNode> m_bases;  // åŸºç±»åˆ—è¡¨èŠ‚ç‚¹
+    PycRef<ASTNode> m_name;   // ç±»åèŠ‚ç‚¹
 };
 
 
-// º¯Êıµ÷ÓÃ½ÚµãÀà
+// å‡½æ•°è°ƒç”¨èŠ‚ç‚¹ç±»
 class ASTCall : public ASTNode {
 public:
-    typedef std::list<PycRef<ASTNode>> pparam_t;  // Î»ÖÃ²ÎÊıÀàĞÍ
-    typedef std::list<std::pair<PycRef<ASTNode>, PycRef<ASTNode>>> kwparam_t;  // ¹Ø¼ü×Ö²ÎÊıÀàĞÍ
+    typedef std::list<PycRef<ASTNode>> pparam_t;  // ä½ç½®å‚æ•°ç±»å‹
+    typedef std::list<std::pair<PycRef<ASTNode>, PycRef<ASTNode>>> kwparam_t;  // å…³é”®å­—å‚æ•°ç±»å‹
 
     ASTCall(PycRef<ASTNode> func, pparam_t pparams, kwparam_t kwparams)
         : ASTNode(NODE_CALL), m_func(std::move(func)), m_pparams(std::move(pparams)),
           m_kwparams(std::move(kwparams)) { }
 
-    PycRef<ASTNode> func() const { return m_func; }              // »ñÈ¡±»µ÷ÓÃº¯Êı
-    const pparam_t& pparams() const { return m_pparams; }        // »ñÈ¡Î»ÖÃ²ÎÊı
-    const kwparam_t& kwparams() const { return m_kwparams; }     // »ñÈ¡¹Ø¼ü×Ö²ÎÊı
-    PycRef<ASTNode> var() const { return m_var; }                // »ñÈ¡¿É±äÎ»ÖÃ²ÎÊı
-    PycRef<ASTNode> kw() const { return m_kw; }                  // »ñÈ¡¿É±ä¹Ø¼ü×Ö²ÎÊı
+    PycRef<ASTNode> func() const { return m_func; }              // è·å–è¢«è°ƒç”¨å‡½æ•°
+    const pparam_t& pparams() const { return m_pparams; }        // è·å–ä½ç½®å‚æ•°
+    const kwparam_t& kwparams() const { return m_kwparams; }     // è·å–å…³é”®å­—å‚æ•°
+    PycRef<ASTNode> var() const { return m_var; }                // è·å–å¯å˜ä½ç½®å‚æ•°
+    PycRef<ASTNode> kw() const { return m_kw; }                  // è·å–å¯å˜å…³é”®å­—å‚æ•°
 
-    bool hasVar() const { return m_var != nullptr; }             // ÊÇ·ñÓĞ¿É±äÎ»ÖÃ²ÎÊı
-    bool hasKW() const { return m_kw != nullptr; }               // ÊÇ·ñÓĞ¿É±ä¹Ø¼ü×Ö²ÎÊı
+    bool hasVar() const { return m_var != nullptr; }             // æ˜¯å¦æœ‰å¯å˜ä½ç½®å‚æ•°
+    bool hasKW() const { return m_kw != nullptr; }               // æ˜¯å¦æœ‰å¯å˜å…³é”®å­—å‚æ•°
 
-    void setVar(PycRef<ASTNode> var) { m_var = std::move(var); } // ÉèÖÃ¿É±äÎ»ÖÃ²ÎÊı
-    void setKW(PycRef<ASTNode> kw) { m_kw = std::move(kw); }     // ÉèÖÃ¿É±ä¹Ø¼ü×Ö²ÎÊı
+    void setVar(PycRef<ASTNode> var) { m_var = std::move(var); } // è®¾ç½®å¯å˜ä½ç½®å‚æ•°
+    void setKW(PycRef<ASTNode> kw) { m_kw = std::move(kw); }     // è®¾ç½®å¯å˜å…³é”®å­—å‚æ•°
 
 private:
-    PycRef<ASTNode> m_func;      // ±»µ÷ÓÃº¯Êı½Úµã
-    pparam_t m_pparams;          // Î»ÖÃ²ÎÊıÁĞ±í
-    kwparam_t m_kwparams;        // ¹Ø¼ü×Ö²ÎÊıÁĞ±í
-    PycRef<ASTNode> m_var;       // ¿É±äÎ»ÖÃ²ÎÊı£¨*args£©
-    PycRef<ASTNode> m_kw;        // ¿É±ä¹Ø¼ü×Ö²ÎÊı£¨**kwargs£©
+    PycRef<ASTNode> m_func;      // è¢«è°ƒç”¨å‡½æ•°èŠ‚ç‚¹
+    pparam_t m_pparams;          // ä½ç½®å‚æ•°åˆ—è¡¨
+    kwparam_t m_kwparams;        // å…³é”®å­—å‚æ•°åˆ—è¡¨
+    PycRef<ASTNode> m_var;       // å¯å˜ä½ç½®å‚æ•°ï¼ˆ*argsï¼‰
+    PycRef<ASTNode> m_kw;        // å¯å˜å…³é”®å­—å‚æ•°ï¼ˆ**kwargsï¼‰
 };
 
 
-// µ¼ÈëÓï¾ä½ÚµãÀà
+// å¯¼å…¥è¯­å¥èŠ‚ç‚¹ç±»
 class ASTImport : public ASTNode {
 public:
     typedef std::list<PycRef<ASTStore>> list_t;
@@ -410,21 +410,21 @@ public:
     ASTImport(PycRef<ASTNode> name, PycRef<ASTNode> fromlist)
         : ASTNode(NODE_IMPORT), m_name(std::move(name)), m_fromlist(std::move(fromlist)) { }
 
-    PycRef<ASTNode> name() const { return m_name; }           // »ñÈ¡µ¼ÈëÄ£¿éÃû
-    list_t stores() const { return m_stores; }                // »ñÈ¡´æ´¢ÁĞ±í
-    void add_store(PycRef<ASTStore> store) { m_stores.emplace_back(std::move(store)); }  // Ìí¼Ó´æ´¢
+    PycRef<ASTNode> name() const { return m_name; }           // è·å–å¯¼å…¥æ¨¡å—å
+    list_t stores() const { return m_stores; }                // è·å–å­˜å‚¨åˆ—è¡¨
+    void add_store(PycRef<ASTStore> store) { m_stores.emplace_back(std::move(store)); }  // æ·»åŠ å­˜å‚¨
 
-    PycRef<ASTNode> fromlist() const { return m_fromlist; }   // »ñÈ¡fromµ¼ÈëÁĞ±í
+    PycRef<ASTNode> fromlist() const { return m_fromlist; }   // è·å–fromå¯¼å…¥åˆ—è¡¨
 
 private:
-    PycRef<ASTNode> m_name;      // Ä£¿éÃû½Úµã
-    list_t m_stores;             // ´æ´¢ÁĞ±í
+    PycRef<ASTNode> m_name;      // æ¨¡å—åèŠ‚ç‚¹
+    list_t m_stores;             // å­˜å‚¨åˆ—è¡¨
 
-    PycRef<ASTNode> m_fromlist;  // fromµ¼ÈëÁĞ±í½Úµã
+    PycRef<ASTNode> m_fromlist;  // fromå¯¼å…¥åˆ—è¡¨èŠ‚ç‚¹
 };
 
 
-// Ôª×é½ÚµãÀà
+// å…ƒç»„èŠ‚ç‚¹ç±»
 class ASTTuple : public ASTNode {
 public:
     typedef std::vector<PycRef<ASTNode>> value_t;
@@ -433,19 +433,19 @@ public:
         : ASTNode(NODE_TUPLE), m_values(std::move(values)),
           m_requireParens(true) { }
 
-    const value_t& values() const { return m_values; }           // »ñÈ¡Ôª×éÖµÁĞ±í
-    void add(PycRef<ASTNode> name) { m_values.emplace_back(std::move(name)); }  // Ìí¼ÓÔªËØ
+    const value_t& values() const { return m_values; }           // è·å–å…ƒç»„å€¼åˆ—è¡¨
+    void add(PycRef<ASTNode> name) { m_values.emplace_back(std::move(name)); }  // æ·»åŠ å…ƒç´ 
 
-    void setRequireParens(bool require) { m_requireParens = require; }  // ÉèÖÃÊÇ·ñĞèÒªÀ¨ºÅ
-    bool requireParens() const { return m_requireParens; }              // ÊÇ·ñĞèÒªÀ¨ºÅ
+    void setRequireParens(bool require) { m_requireParens = require; }  // è®¾ç½®æ˜¯å¦éœ€è¦æ‹¬å·
+    bool requireParens() const { return m_requireParens; }              // æ˜¯å¦éœ€è¦æ‹¬å·
 
 private:
-    value_t m_values;         // ÖµÁĞ±í
-    bool m_requireParens;     // ÊÇ·ñĞèÒªÀ¨ºÅ±êÖ¾
+    value_t m_values;         // å€¼åˆ—è¡¨
+    bool m_requireParens;     // æ˜¯å¦éœ€è¦æ‹¬å·æ ‡å¿—
 };
 
 
-// ÁĞ±í½ÚµãÀà
+// åˆ—è¡¨èŠ‚ç‚¹ç±»
 class ASTList : public ASTNode {
 public:
     typedef std::list<PycRef<ASTNode>> value_t;
@@ -453,13 +453,13 @@ public:
     ASTList(value_t values)
         : ASTNode(NODE_LIST), m_values(std::move(values)) { }
 
-    const value_t& values() const { return m_values; }  // »ñÈ¡ÁĞ±íÖµ
+    const value_t& values() const { return m_values; }  // è·å–åˆ—è¡¨å€¼
 
 private:
-    value_t m_values;  // ÖµÁĞ±í
+    value_t m_values;  // å€¼åˆ—è¡¨
 };
 
-// ¼¯ºÏ½ÚµãÀà
+// é›†åˆèŠ‚ç‚¹ç±»
 class ASTSet : public ASTNode {
 public:
     typedef std::deque<PycRef<ASTNode>> value_t;
@@ -467,49 +467,49 @@ public:
     ASTSet(value_t values)
         : ASTNode(NODE_SET), m_values(std::move(values)) { }
 
-    const value_t& values() const { return m_values; }  // »ñÈ¡¼¯ºÏÖµ
+    const value_t& values() const { return m_values; }  // è·å–é›†åˆå€¼
 
 private:
-    value_t m_values;  // Öµ¶ÓÁĞ
+    value_t m_values;  // å€¼é˜Ÿåˆ—
 };
 
-// Ó³Éä½ÚµãÀà£¨×Öµä£©
+// æ˜ å°„èŠ‚ç‚¹ç±»ï¼ˆå­—å…¸ï¼‰
 class ASTMap : public ASTNode {
 public:
     typedef std::list<std::pair<PycRef<ASTNode>, PycRef<ASTNode>>> map_t;
 
     ASTMap() : ASTNode(NODE_MAP) { }
 
-    void add(PycRef<ASTNode> key, PycRef<ASTNode> value)  // Ìí¼Ó¼üÖµ¶Ô
+    void add(PycRef<ASTNode> key, PycRef<ASTNode> value)  // æ·»åŠ é”®å€¼å¯¹
     {
         m_values.emplace_back(std::move(key), std::move(value));
     }
 
-    const map_t& values() const { return m_values; }  // »ñÈ¡Ó³Éä¼üÖµ¶Ô
+    const map_t& values() const { return m_values; }  // è·å–æ˜ å°„é”®å€¼å¯¹
 
 private:
-    map_t m_values;  // ¼üÖµ¶ÔÁĞ±í
+    map_t m_values;  // é”®å€¼å¯¹åˆ—è¡¨
 };
 
-// ¹Ø¼ü×ÖÃû³ÆÓ³Éä½ÚµãÀà
+// å…³é”®å­—åç§°æ˜ å°„èŠ‚ç‚¹ç±»
 class ASTKwNamesMap : public ASTNode {
 public:
     typedef std::list<std::pair<PycRef<ASTNode>, PycRef<ASTNode>>> map_t;
 
     ASTKwNamesMap() : ASTNode(NODE_KW_NAMES_MAP) { }
 
-    void add(PycRef<ASTNode> key, PycRef<ASTNode> value)  // Ìí¼Ó¼üÖµ¶Ô
+    void add(PycRef<ASTNode> key, PycRef<ASTNode> value)  // æ·»åŠ é”®å€¼å¯¹
     {
         m_values.emplace_back(std::move(key), std::move(value));
     }
 
-    const map_t& values() const { return m_values; }  // »ñÈ¡¹Ø¼ü×ÖÃû³ÆÓ³Éä
+    const map_t& values() const { return m_values; }  // è·å–å…³é”®å­—åç§°æ˜ å°„
 
 private:
-    map_t m_values;  // ¼üÖµ¶ÔÁĞ±í
+    map_t m_values;  // é”®å€¼å¯¹åˆ—è¡¨
 };
 
-// ³£Á¿Ó³Éä½ÚµãÀà
+// å¸¸é‡æ˜ å°„èŠ‚ç‚¹ç±»
 class ASTConstMap : public ASTNode {
 public:
     typedef std::vector<PycRef<ASTNode>> values_t;
@@ -517,31 +517,31 @@ public:
     ASTConstMap(PycRef<ASTNode> keys, const values_t& values)
         : ASTNode(NODE_CONST_MAP), m_keys(std::move(keys)), m_values(std::move(values)) { }
 
-    const PycRef<ASTNode>& keys() const { return m_keys; }    // »ñÈ¡¼üÁĞ±í
-    const values_t& values() const { return m_values; }       // »ñÈ¡ÖµÁĞ±í
+    const PycRef<ASTNode>& keys() const { return m_keys; }    // è·å–é”®åˆ—è¡¨
+    const values_t& values() const { return m_values; }       // è·å–å€¼åˆ—è¡¨
 
 private:
-    PycRef<ASTNode> m_keys;    // ¼ü½Úµã
-    values_t m_values;         // ÖµÁĞ±í
+    PycRef<ASTNode> m_keys;    // é”®èŠ‚ç‚¹
+    values_t m_values;         // å€¼åˆ—è¡¨
 };
 
 
-// ÏÂ±ê²Ù×÷½ÚµãÀà
+// ä¸‹æ ‡æ“ä½œèŠ‚ç‚¹ç±»
 class ASTSubscr : public ASTNode {
 public:
     ASTSubscr(PycRef<ASTNode> name, PycRef<ASTNode> key)
         : ASTNode(NODE_SUBSCR), m_name(std::move(name)), m_key(std::move(key)) { }
 
-    PycRef<ASTNode> name() const { return m_name; }  // »ñÈ¡Ãû³Æ½Úµã
-    PycRef<ASTNode> key() const { return m_key; }    // »ñÈ¡¼ü½Úµã
+    PycRef<ASTNode> name() const { return m_name; }  // è·å–åç§°èŠ‚ç‚¹
+    PycRef<ASTNode> key() const { return m_key; }    // è·å–é”®èŠ‚ç‚¹
 
 private:
-    PycRef<ASTNode> m_name;  // Ãû³Æ½Úµã£¨±»Ë÷ÒıµÄ¶ÔÏó£©
-    PycRef<ASTNode> m_key;   // ¼ü½Úµã£¨Ë÷ÒıÖµ£©
+    PycRef<ASTNode> m_name;  // åç§°èŠ‚ç‚¹ï¼ˆè¢«ç´¢å¼•çš„å¯¹è±¡ï¼‰
+    PycRef<ASTNode> m_key;   // é”®èŠ‚ç‚¹ï¼ˆç´¢å¼•å€¼ï¼‰
 };
 
 
-// ´òÓ¡Óï¾ä½ÚµãÀà
+// æ‰“å°è¯­å¥èŠ‚ç‚¹ç±»
 class ASTPrint : public ASTNode {
 public:
     typedef std::list<PycRef<ASTNode>> values_t;
@@ -552,219 +552,219 @@ public:
         if (value != nullptr)
             m_values.emplace_back(std::move(value));
         else
-            m_eol = true;  // Ö»ÓĞ»»ĞĞ
+            m_eol = true;  // åªæœ‰æ¢è¡Œ
     }
 
-    values_t values() const { return m_values; }         // »ñÈ¡´òÓ¡ÖµÁĞ±í
-    PycRef<ASTNode> stream() const { return m_stream; }  // »ñÈ¡Êä³öÁ÷
-    bool eol() const { return m_eol; }                   // ÊÇ·ñÒÔ»»ĞĞ½áÊø
+    values_t values() const { return m_values; }         // è·å–æ‰“å°å€¼åˆ—è¡¨
+    PycRef<ASTNode> stream() const { return m_stream; }  // è·å–è¾“å‡ºæµ
+    bool eol() const { return m_eol; }                   // æ˜¯å¦ä»¥æ¢è¡Œç»“æŸ
 
-    void add(PycRef<ASTNode> value) { m_values.emplace_back(std::move(value)); }  // Ìí¼Ó´òÓ¡Öµ
-    void setEol(bool eol) { m_eol = eol; }                                       // ÉèÖÃ»»ĞĞ±êÖ¾
+    void add(PycRef<ASTNode> value) { m_values.emplace_back(std::move(value)); }  // æ·»åŠ æ‰“å°å€¼
+    void setEol(bool eol) { m_eol = eol; }                                       // è®¾ç½®æ¢è¡Œæ ‡å¿—
 
 private:
-    values_t m_values;        // ´òÓ¡ÖµÁĞ±í
-    PycRef<ASTNode> m_stream; // Êä³öÁ÷½Úµã
-    bool m_eol;               // »»ĞĞ½áÊø±êÖ¾
+    values_t m_values;        // æ‰“å°å€¼åˆ—è¡¨
+    PycRef<ASTNode> m_stream; // è¾“å‡ºæµèŠ‚ç‚¹
+    bool m_eol;               // æ¢è¡Œç»“æŸæ ‡å¿—
 };
 
 
-// ×ª»»²Ù×÷½ÚµãÀà
+// è½¬æ¢æ“ä½œèŠ‚ç‚¹ç±»
 class ASTConvert : public ASTNode {
 public:
     ASTConvert(PycRef<ASTNode> name)
         : ASTNode(NODE_CONVERT), m_name(std::move(name)) { }
 
-    PycRef<ASTNode> name() const { return m_name; }  // »ñÈ¡×ª»»Ãû³Æ
+    PycRef<ASTNode> name() const { return m_name; }  // è·å–è½¬æ¢åç§°
 
 private:
-    PycRef<ASTNode> m_name;  // ×ª»»Ãû³Æ½Úµã
+    PycRef<ASTNode> m_name;  // è½¬æ¢åç§°èŠ‚ç‚¹
 };
 
 
-// ¹Ø¼ü×Ö½ÚµãÀà
+// å…³é”®å­—èŠ‚ç‚¹ç±»
 class ASTKeyword : public ASTNode {
 public:
     enum Word {
-        KW_PASS,        // pass ¹Ø¼ü×Ö
-        KW_BREAK,       // break ¹Ø¼ü×Ö  
-        KW_CONTINUE     // continue ¹Ø¼ü×Ö
+        KW_PASS,        // pass å…³é”®å­—
+        KW_BREAK,       // break å…³é”®å­—  
+        KW_CONTINUE     // continue å…³é”®å­—
     };
 
     ASTKeyword(Word key) : ASTNode(NODE_KEYWORD), m_key(key) { }
 
-    Word key() const { return m_key; }           // »ñÈ¡¹Ø¼ü×ÖÀàĞÍ
-    const char* word_str() const;                // »ñÈ¡¹Ø¼ü×Ö×Ö·û´®±íÊ¾
+    Word key() const { return m_key; }           // è·å–å…³é”®å­—ç±»å‹
+    const char* word_str() const;                // è·å–å…³é”®å­—å­—ç¬¦ä¸²è¡¨ç¤º
 
 private:
-    Word m_key;  // ¹Ø¼ü×ÖÀàĞÍ
+    Word m_key;  // å…³é”®å­—ç±»å‹
 };
 
 
-// Å×³öÒì³£½ÚµãÀà
+// æŠ›å‡ºå¼‚å¸¸èŠ‚ç‚¹ç±»
 class ASTRaise : public ASTNode {
 public:
     typedef std::list<PycRef<ASTNode>> param_t;
 
     ASTRaise(param_t params) : ASTNode(NODE_RAISE), m_params(std::move(params)) { }
 
-    const param_t& params() const { return m_params; }  // »ñÈ¡Òì³£²ÎÊı
+    const param_t& params() const { return m_params; }  // è·å–å¼‚å¸¸å‚æ•°
 
 private:
-    param_t m_params;  // Òì³£²ÎÊıÁĞ±í
+    param_t m_params;  // å¼‚å¸¸å‚æ•°åˆ—è¡¨
 };
 
 
-// Ö´ĞĞÓï¾ä½ÚµãÀà
+// æ‰§è¡Œè¯­å¥èŠ‚ç‚¹ç±»
 class ASTExec : public ASTNode {
 public:
     ASTExec(PycRef<ASTNode> stmt, PycRef<ASTNode> glob, PycRef<ASTNode> loc)
         : ASTNode(NODE_EXEC), m_stmt(std::move(stmt)), m_glob(std::move(glob)),
           m_loc(std::move(loc)) { }
 
-    PycRef<ASTNode> statement() const { return m_stmt; }  // »ñÈ¡Ö´ĞĞÓï¾ä
-    PycRef<ASTNode> globals() const { return m_glob; }    // »ñÈ¡È«¾Ö±äÁ¿
-    PycRef<ASTNode> locals() const { return m_loc; }      // »ñÈ¡¾Ö²¿±äÁ¿
+    PycRef<ASTNode> statement() const { return m_stmt; }  // è·å–æ‰§è¡Œè¯­å¥
+    PycRef<ASTNode> globals() const { return m_glob; }    // è·å–å…¨å±€å˜é‡
+    PycRef<ASTNode> locals() const { return m_loc; }      // è·å–å±€éƒ¨å˜é‡
 
 private:
-    PycRef<ASTNode> m_stmt;  // Ö´ĞĞÓï¾ä½Úµã
-    PycRef<ASTNode> m_glob;  // È«¾Ö±äÁ¿½Úµã
-    PycRef<ASTNode> m_loc;   // ¾Ö²¿±äÁ¿½Úµã
+    PycRef<ASTNode> m_stmt;  // æ‰§è¡Œè¯­å¥èŠ‚ç‚¹
+    PycRef<ASTNode> m_glob;  // å…¨å±€å˜é‡èŠ‚ç‚¹
+    PycRef<ASTNode> m_loc;   // å±€éƒ¨å˜é‡èŠ‚ç‚¹
 };
 
 
-// ´úÂë¿é½ÚµãÀà
+// ä»£ç å—èŠ‚ç‚¹ç±»
 class ASTBlock : public ASTNode {
 public:
     typedef std::list<PycRef<ASTNode>> list_t;
 
-    // ´úÂë¿éÀàĞÍÃ¶¾Ù
+    // ä»£ç å—ç±»å‹æšä¸¾
     enum BlkType {
-        BLK_MAIN,        // Ö÷¿é
-        BLK_IF,          // if ¿é
-        BLK_ELSE,        // else ¿é  
-        BLK_ELIF,        // elif ¿é
-        BLK_TRY,         // try ¿é
-        BLK_CONTAINER,   // ÈİÆ÷¿é
-        BLK_EXCEPT,      // except ¿é
-        BLK_FINALLY,     // finally ¿é
-        BLK_WHILE,       // while ¿é
-        BLK_FOR,         // for ¿é
-        BLK_WITH,        // with ¿é
-        BLK_ASYNCFOR     // Òì²½ for ¿é
+        BLK_MAIN,        // ä¸»å—
+        BLK_IF,          // if å—
+        BLK_ELSE,        // else å—  
+        BLK_ELIF,        // elif å—
+        BLK_TRY,         // try å—
+        BLK_CONTAINER,   // å®¹å™¨å—
+        BLK_EXCEPT,      // except å—
+        BLK_FINALLY,     // finally å—
+        BLK_WHILE,       // while å—
+        BLK_FOR,         // for å—
+        BLK_WITH,        // with å—
+        BLK_ASYNCFOR     // å¼‚æ­¥ for å—
     };
 
     ASTBlock(BlkType blktype, int end = 0, int inited = 0)
         : ASTNode(NODE_BLOCK), m_blktype(blktype), m_end(end), m_inited(inited) { }
 
-    BlkType blktype() const { return m_blktype; }           // »ñÈ¡¿éÀàĞÍ
-    int end() const { return m_end; }                       // »ñÈ¡½áÊøÎ»ÖÃ
-    const list_t& nodes() const { return m_nodes; }         // »ñÈ¡½ÚµãÁĞ±í
-    list_t::size_type size() const { return m_nodes.size(); }  // »ñÈ¡½ÚµãÊıÁ¿
-    void removeFirst();        // ÒÆ³ıµÚÒ»¸ö½Úµã
-    void removeLast();         // ÒÆ³ı×îºóÒ»¸ö½Úµã
-    void append(PycRef<ASTNode> node) { m_nodes.emplace_back(std::move(node)); }  // Ìí¼Ó½Úµã
-    const char* type_str() const;  // »ñÈ¡ÀàĞÍ×Ö·û´®±íÊ¾
+    BlkType blktype() const { return m_blktype; }           // è·å–å—ç±»å‹
+    int end() const { return m_end; }                       // è·å–ç»“æŸä½ç½®
+    const list_t& nodes() const { return m_nodes; }         // è·å–èŠ‚ç‚¹åˆ—è¡¨
+    list_t::size_type size() const { return m_nodes.size(); }  // è·å–èŠ‚ç‚¹æ•°é‡
+    void removeFirst();        // ç§»é™¤ç¬¬ä¸€ä¸ªèŠ‚ç‚¹
+    void removeLast();         // ç§»é™¤æœ€åä¸€ä¸ªèŠ‚ç‚¹
+    void append(PycRef<ASTNode> node) { m_nodes.emplace_back(std::move(node)); }  // æ·»åŠ èŠ‚ç‚¹
+    const char* type_str() const;  // è·å–ç±»å‹å­—ç¬¦ä¸²è¡¨ç¤º
 
-    virtual int inited() const { return m_inited; }         // ÊÇ·ñÒÑ³õÊ¼»¯
-    virtual void init() { m_inited = 1; }                   // ³õÊ¼»¯
-    virtual void init(int init) { m_inited = init; }        // ´ø²ÎÊıµÄ³õÊ¼»¯
+    virtual int inited() const { return m_inited; }         // æ˜¯å¦å·²åˆå§‹åŒ–
+    virtual void init() { m_inited = 1; }                   // åˆå§‹åŒ–
+    virtual void init(int init) { m_inited = init; }        // å¸¦å‚æ•°çš„åˆå§‹åŒ–
 
-    void setEnd(int end) { m_end = end; }                   // ÉèÖÃ½áÊøÎ»ÖÃ
+    void setEnd(int end) { m_end = end; }                   // è®¾ç½®ç»“æŸä½ç½®
 
 private:
-    BlkType m_blktype;  // ¿éÀàĞÍ
-    int m_end;          // ½áÊøÎ»ÖÃ
-    list_t m_nodes;     // ½ÚµãÁĞ±í
+    BlkType m_blktype;  // å—ç±»å‹
+    int m_end;          // ç»“æŸä½ç½®
+    list_t m_nodes;     // èŠ‚ç‚¹åˆ—è¡¨
 
 protected:
-    int m_inited;       // ³õÊ¼»¯±êÖ¾
+    int m_inited;       // åˆå§‹åŒ–æ ‡å¿—
 };
 
 
-// Ìõ¼ş¿é½ÚµãÀà
+// æ¡ä»¶å—èŠ‚ç‚¹ç±»
 class ASTCondBlock : public ASTBlock {
 public:
-    // ³õÊ¼»¯Ìõ¼şÃ¶¾Ù
+    // åˆå§‹åŒ–æ¡ä»¶æšä¸¾
     enum InitCond {
-        UNINITED,      // Î´³õÊ¼»¯
-        POPPED,        // ÒÑµ¯³ö
-        PRE_POPPED     // Ô¤µ¯³ö
+        UNINITED,      // æœªåˆå§‹åŒ–
+        POPPED,        // å·²å¼¹å‡º
+        PRE_POPPED     // é¢„å¼¹å‡º
     };
 
     ASTCondBlock(ASTBlock::BlkType blktype, int end, PycRef<ASTNode> cond,
                  bool negative = false)
         : ASTBlock(blktype, end), m_cond(std::move(cond)), m_negative(negative) { }
 
-    PycRef<ASTNode> cond() const { return m_cond; }      // »ñÈ¡Ìõ¼ş±í´ïÊ½
-    bool negative() const { return m_negative; }         // ÊÇ·ñÎª·ñ¶¨Ìõ¼ş
+    PycRef<ASTNode> cond() const { return m_cond; }      // è·å–æ¡ä»¶è¡¨è¾¾å¼
+    bool negative() const { return m_negative; }         // æ˜¯å¦ä¸ºå¦å®šæ¡ä»¶
 
 private:
-    PycRef<ASTNode> m_cond;     // Ìõ¼ş½Úµã
-    bool m_negative;            // ·ñ¶¨±êÖ¾
+    PycRef<ASTNode> m_cond;     // æ¡ä»¶èŠ‚ç‚¹
+    bool m_negative;            // å¦å®šæ ‡å¿—
 };
 
 
-// µü´ú¿é½ÚµãÀà
+// è¿­ä»£å—èŠ‚ç‚¹ç±»
 class ASTIterBlock : public ASTBlock {
 public:
     ASTIterBlock(ASTBlock::BlkType blktype, int start, int end, PycRef<ASTNode> iter)
         : ASTBlock(blktype, end), m_iter(std::move(iter)), m_idx(), m_comp(), m_start(start) { }
 
-    PycRef<ASTNode> iter() const { return m_iter; }             // »ñÈ¡µü´úÆ÷
-    PycRef<ASTNode> index() const { return m_idx; }             // »ñÈ¡Ë÷Òı
-    PycRef<ASTNode> condition() const { return m_cond; }        // »ñÈ¡Ìõ¼ş
-    bool isComprehension() const { return m_comp; }             // ÊÇ·ñÎªÍÆµ¼Ê½
-    int start() const { return m_start; }                       // »ñÈ¡ÆğÊ¼Î»ÖÃ
+    PycRef<ASTNode> iter() const { return m_iter; }             // è·å–è¿­ä»£å™¨
+    PycRef<ASTNode> index() const { return m_idx; }             // è·å–ç´¢å¼•
+    PycRef<ASTNode> condition() const { return m_cond; }        // è·å–æ¡ä»¶
+    bool isComprehension() const { return m_comp; }             // æ˜¯å¦ä¸ºæ¨å¯¼å¼
+    int start() const { return m_start; }                       // è·å–èµ·å§‹ä½ç½®
 
-    void setIndex(PycRef<ASTNode> idx) { m_idx = std::move(idx); init(); }  // ÉèÖÃË÷Òı
-    void setCondition(PycRef<ASTNode> cond) { m_cond = std::move(cond); }   // ÉèÖÃÌõ¼ş
-    void setComprehension(bool comp) { m_comp = comp; }                     // ÉèÖÃÍÆµ¼Ê½±êÖ¾
+    void setIndex(PycRef<ASTNode> idx) { m_idx = std::move(idx); init(); }  // è®¾ç½®ç´¢å¼•
+    void setCondition(PycRef<ASTNode> cond) { m_cond = std::move(cond); }   // è®¾ç½®æ¡ä»¶
+    void setComprehension(bool comp) { m_comp = comp; }                     // è®¾ç½®æ¨å¯¼å¼æ ‡å¿—
 
 private:
-    PycRef<ASTNode> m_iter;  // µü´úÆ÷½Úµã
-    PycRef<ASTNode> m_idx;   // Ë÷Òı½Úµã
-    PycRef<ASTNode> m_cond;  // Ìõ¼ş½Úµã
-    bool m_comp;             // ÍÆµ¼Ê½±êÖ¾
-    int m_start;             // ÆğÊ¼Î»ÖÃ
+    PycRef<ASTNode> m_iter;  // è¿­ä»£å™¨èŠ‚ç‚¹
+    PycRef<ASTNode> m_idx;   // ç´¢å¼•èŠ‚ç‚¹
+    PycRef<ASTNode> m_cond;  // æ¡ä»¶èŠ‚ç‚¹
+    bool m_comp;             // æ¨å¯¼å¼æ ‡å¿—
+    int m_start;             // èµ·å§‹ä½ç½®
 };
 
-// ÈİÆ÷¿é½ÚµãÀà
+// å®¹å™¨å—èŠ‚ç‚¹ç±»
 class ASTContainerBlock : public ASTBlock {
 public:
     ASTContainerBlock(int finally, int except = 0)
         : ASTBlock(ASTBlock::BLK_CONTAINER, 0), m_finally(finally), m_except(except) { }
 
-    bool hasFinally() const { return m_finally != 0; }   // ÊÇ·ñÓĞfinally¿é
-    bool hasExcept() const { return m_except != 0; }     // ÊÇ·ñÓĞexcept¿é
-    int finally() const { return m_finally; }            // »ñÈ¡finallyÎ»ÖÃ
-    int except() const { return m_except; }              // »ñÈ¡exceptÎ»ÖÃ
+    bool hasFinally() const { return m_finally != 0; }   // æ˜¯å¦æœ‰finallyå—
+    bool hasExcept() const { return m_except != 0; }     // æ˜¯å¦æœ‰exceptå—
+    int finally() const { return m_finally; }            // è·å–finallyä½ç½®
+    int except() const { return m_except; }              // è·å–exceptä½ç½®
 
-    void setExcept(int except) { m_except = except; }    // ÉèÖÃexceptÎ»ÖÃ
+    void setExcept(int except) { m_except = except; }    // è®¾ç½®exceptä½ç½®
 
 private:
-    int m_finally;  // finally¿éÎ»ÖÃ
-    int m_except;   // except¿éÎ»ÖÃ
+    int m_finally;  // finallyå—ä½ç½®
+    int m_except;   // exceptå—ä½ç½®
 };
 
-// with¿é½ÚµãÀà
+// withå—èŠ‚ç‚¹ç±»
 class ASTWithBlock : public ASTBlock {
 public:
     ASTWithBlock(int end)
         : ASTBlock(ASTBlock::BLK_WITH, end) { }
 
-    PycRef<ASTNode> expr() const { return m_expr; }   // »ñÈ¡±í´ïÊ½
-    PycRef<ASTNode> var() const { return m_var; }     // »ñÈ¡±äÁ¿
+    PycRef<ASTNode> expr() const { return m_expr; }   // è·å–è¡¨è¾¾å¼
+    PycRef<ASTNode> var() const { return m_var; }     // è·å–å˜é‡
 
-    void setExpr(PycRef<ASTNode> expr) { m_expr = std::move(expr); init(); }  // ÉèÖÃ±í´ïÊ½
-    void setVar(PycRef<ASTNode> var) { m_var = std::move(var); }              // ÉèÖÃ±äÁ¿
+    void setExpr(PycRef<ASTNode> expr) { m_expr = std::move(expr); init(); }  // è®¾ç½®è¡¨è¾¾å¼
+    void setVar(PycRef<ASTNode> var) { m_var = std::move(var); }              // è®¾ç½®å˜é‡
 
 private:
-    PycRef<ASTNode> m_expr;  // ±í´ïÊ½½Úµã
-    PycRef<ASTNode> m_var;   // ±äÁ¿½Úµã£¨¿ÉÑ¡Öµ£©
+    PycRef<ASTNode> m_expr;  // è¡¨è¾¾å¼èŠ‚ç‚¹
+    PycRef<ASTNode> m_var;   // å˜é‡èŠ‚ç‚¹ï¼ˆå¯é€‰å€¼ï¼‰
 };
 
-// ÍÆµ¼Ê½½ÚµãÀà
+// æ¨å¯¼å¼èŠ‚ç‚¹ç±»
 class ASTComprehension : public ASTNode {
 public:
     typedef std::list<PycRef<ASTIterBlock>> generator_t;
@@ -772,54 +772,54 @@ public:
     ASTComprehension(PycRef<ASTNode> result)
         : ASTNode(NODE_COMPREHENSION), m_result(std::move(result)) { }
 
-    PycRef<ASTNode> result() const { return m_result; }               // »ñÈ¡½á¹û±í´ïÊ½
-    generator_t generators() const { return m_generators; }           // »ñÈ¡Éú³ÉÆ÷ÁĞ±í
+    PycRef<ASTNode> result() const { return m_result; }               // è·å–ç»“æœè¡¨è¾¾å¼
+    generator_t generators() const { return m_generators; }           // è·å–ç”Ÿæˆå™¨åˆ—è¡¨
 
     void addGenerator(PycRef<ASTIterBlock> gen) {
-        m_generators.emplace_front(std::move(gen));  // Ìí¼ÓÉú³ÉÆ÷
+        m_generators.emplace_front(std::move(gen));  // æ·»åŠ ç”Ÿæˆå™¨
     }
 
 private:
-    PycRef<ASTNode> m_result;        // ½á¹û±í´ïÊ½½Úµã
-    generator_t m_generators;        // Éú³ÉÆ÷ÁĞ±í
+    PycRef<ASTNode> m_result;        // ç»“æœè¡¨è¾¾å¼èŠ‚ç‚¹
+    generator_t m_generators;        // ç”Ÿæˆå™¨åˆ—è¡¨
 };
 
-// ¼ÓÔØ¹¹½¨Àà½ÚµãÀà
+// åŠ è½½æ„å»ºç±»èŠ‚ç‚¹ç±»
 class ASTLoadBuildClass : public ASTNode {
 public:
     ASTLoadBuildClass(PycRef<PycObject> obj)
         : ASTNode(NODE_LOADBUILDCLASS), m_obj(std::move(obj)) { }
 
-    PycRef<PycObject> object() const { return m_obj; }  // »ñÈ¡¶ÔÏó
+    PycRef<PycObject> object() const { return m_obj; }  // è·å–å¯¹è±¡
 
 private:
-    PycRef<PycObject> m_obj;  // ¶ÔÏóÒıÓÃ
+    PycRef<PycObject> m_obj;  // å¯¹è±¡å¼•ç”¨
 };
 
-// ¿ÉµÈ´ı¶ÔÏó½ÚµãÀà
+// å¯ç­‰å¾…å¯¹è±¡èŠ‚ç‚¹ç±»
 class ASTAwaitable : public ASTNode {
 public:
     ASTAwaitable(PycRef<ASTNode> expr)
         : ASTNode(NODE_AWAITABLE), m_expr(std::move(expr)) { }
 
-    PycRef<ASTNode> expression() const { return m_expr; }  // »ñÈ¡±í´ïÊ½
+    PycRef<ASTNode> expression() const { return m_expr; }  // è·å–è¡¨è¾¾å¼
 
 private:
-    PycRef<ASTNode> m_expr;  // ±í´ïÊ½½Úµã
+    PycRef<ASTNode> m_expr;  // è¡¨è¾¾å¼èŠ‚ç‚¹
 };
 
-// ¸ñÊ½»¯Öµ½ÚµãÀà£¨ÓÃÓÚf-string£©
+// æ ¼å¼åŒ–å€¼èŠ‚ç‚¹ç±»ï¼ˆç”¨äºf-stringï¼‰
 class ASTFormattedValue : public ASTNode {
 public:
-    // ×ª»»±êÖ¾Ã¶¾Ù
+    // è½¬æ¢æ ‡å¿—æšä¸¾
     enum ConversionFlag {
-        NONE = 0,           // ÎŞ×ª»»
-        STR = 1,            // str() ×ª»»
-        REPR = 2,           // repr() ×ª»»  
-        ASCII = 3,          // ascii() ×ª»»
-        CONVERSION_MASK = 0x03,  // ×ª»»ÑÚÂë
+        NONE = 0,           // æ— è½¬æ¢
+        STR = 1,            // str() è½¬æ¢
+        REPR = 2,           // repr() è½¬æ¢  
+        ASCII = 3,          // ascii() è½¬æ¢
+        CONVERSION_MASK = 0x03,  // è½¬æ¢æ©ç 
 
-        HAVE_FMT_SPEC = 4,  // ÓĞ¸ñÊ½ËµÃ÷·û
+        HAVE_FMT_SPEC = 4,  // æœ‰æ ¼å¼è¯´æ˜ç¬¦
     };
 
     ASTFormattedValue(PycRef<ASTNode> val, ConversionFlag conversion,
@@ -830,17 +830,17 @@ public:
           m_format_spec(std::move(format_spec))
     { }
 
-    PycRef<ASTNode> val() const { return m_val; }                     // »ñÈ¡Öµ
-    ConversionFlag conversion() const { return m_conversion; }        // »ñÈ¡×ª»»±êÖ¾
-    PycRef<ASTNode> format_spec() const { return m_format_spec; }     // »ñÈ¡¸ñÊ½ËµÃ÷·û
+    PycRef<ASTNode> val() const { return m_val; }                     // è·å–å€¼
+    ConversionFlag conversion() const { return m_conversion; }        // è·å–è½¬æ¢æ ‡å¿—
+    PycRef<ASTNode> format_spec() const { return m_format_spec; }     // è·å–æ ¼å¼è¯´æ˜ç¬¦
 
 private:
-    PycRef<ASTNode> m_val;            // Öµ½Úµã
-    ConversionFlag m_conversion;      // ×ª»»±êÖ¾
-    PycRef<ASTNode> m_format_spec;    // ¸ñÊ½ËµÃ÷·û½Úµã
+    PycRef<ASTNode> m_val;            // å€¼èŠ‚ç‚¹
+    ConversionFlag m_conversion;      // è½¬æ¢æ ‡å¿—
+    PycRef<ASTNode> m_format_spec;    // æ ¼å¼è¯´æ˜ç¬¦èŠ‚ç‚¹
 };
 
-// Á¬½Ó×Ö·û´®½ÚµãÀà£¨Í¬ASTList£©
+// è¿æ¥å­—ç¬¦ä¸²èŠ‚ç‚¹ç±»ï¼ˆåŒASTListï¼‰
 class ASTJoinedStr : public ASTNode {
 public:
     typedef std::list<PycRef<ASTNode>> value_t;
@@ -848,27 +848,27 @@ public:
     ASTJoinedStr(value_t values)
         : ASTNode(NODE_JOINEDSTR), m_values(std::move(values)) { }
 
-    const value_t& values() const { return m_values; }  // »ñÈ¡ÖµÁĞ±í
+    const value_t& values() const { return m_values; }  // è·å–å€¼åˆ—è¡¨
 
 private:
-    value_t m_values;  // ÖµÁĞ±í
+    value_t m_values;  // å€¼åˆ—è¡¨
 };
 
-// ×¢½â±äÁ¿½ÚµãÀà
+// æ³¨è§£å˜é‡èŠ‚ç‚¹ç±»
 class ASTAnnotatedVar : public ASTNode {
 public:
     ASTAnnotatedVar(PycRef<ASTNode> name, PycRef<ASTNode> type)
         : ASTNode(NODE_ANNOTATED_VAR), m_name(std::move(name)), m_type(std::move(type)) { }
 
-    PycRef<ASTNode> name() const noexcept { return m_name; }         // »ñÈ¡±äÁ¿Ãû
-    PycRef<ASTNode> annotation() const noexcept { return m_type; }   // »ñÈ¡ÀàĞÍ×¢½â
+    PycRef<ASTNode> name() const noexcept { return m_name; }         // è·å–å˜é‡å
+    PycRef<ASTNode> annotation() const noexcept { return m_type; }   // è·å–ç±»å‹æ³¨è§£
 
 private:
-    PycRef<ASTNode> m_name;  // ±äÁ¿Ãû½Úµã
-    PycRef<ASTNode> m_type;  // ÀàĞÍ×¢½â½Úµã
+    PycRef<ASTNode> m_name;  // å˜é‡åèŠ‚ç‚¹
+    PycRef<ASTNode> m_type;  // ç±»å‹æ³¨è§£èŠ‚ç‚¹
 };
 
-// ÈıÔª²Ù×÷½ÚµãÀà
+// ä¸‰å…ƒæ“ä½œèŠ‚ç‚¹ç±»
 class ASTTernary : public ASTNode
 {
 public:
@@ -877,14 +877,14 @@ public:
         : ASTNode(NODE_TERNARY), m_if_block(std::move(if_block)),
           m_if_expr(std::move(if_expr)), m_else_expr(std::move(else_expr)) { }
 
-    PycRef<ASTNode> if_block() const noexcept { return m_if_block; }    // »ñÈ¡Ìõ¼ş¿é
-    PycRef<ASTNode> if_expr() const noexcept { return m_if_expr; }      // »ñÈ¡if±í´ïÊ½
-    PycRef<ASTNode> else_expr() const noexcept { return m_else_expr; }  // »ñÈ¡else±í´ïÊ½
+    PycRef<ASTNode> if_block() const noexcept { return m_if_block; }    // è·å–æ¡ä»¶å—
+    PycRef<ASTNode> if_expr() const noexcept { return m_if_expr; }      // è·å–ifè¡¨è¾¾å¼
+    PycRef<ASTNode> else_expr() const noexcept { return m_else_expr; }  // è·å–elseè¡¨è¾¾å¼
 
 private:
-    PycRef<ASTNode> m_if_block;   // Ìõ¼ş¿é½Úµã£¨°üº¬"condition"ºÍ"negative"£©
-    PycRef<ASTNode> m_if_expr;    // if±í´ïÊ½½Úµã
-    PycRef<ASTNode> m_else_expr;  // else±í´ïÊ½½Úµã
+    PycRef<ASTNode> m_if_block;   // æ¡ä»¶å—èŠ‚ç‚¹ï¼ˆåŒ…å«"condition"å’Œ"negative"ï¼‰
+    PycRef<ASTNode> m_if_expr;    // ifè¡¨è¾¾å¼èŠ‚ç‚¹
+    PycRef<ASTNode> m_else_expr;  // elseè¡¨è¾¾å¼èŠ‚ç‚¹
 };
 
 #endif

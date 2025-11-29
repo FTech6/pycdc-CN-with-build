@@ -1,4 +1,4 @@
-#ifndef _PYC_FASTSTACK_H
+﻿#ifndef _PYC_FASTSTACK_H
 #define _PYC_FASTSTACK_H
 
 #include "ASTNode.h"

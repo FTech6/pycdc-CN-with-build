@@ -1,4 +1,4 @@
-#ifndef _PYC_OBJECT_H
+﻿#ifndef _PYC_OBJECT_H
 #define _PYC_OBJECT_H
 
 #include <typeinfo>

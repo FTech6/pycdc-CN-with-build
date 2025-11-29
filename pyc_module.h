@@ -1,4 +1,4 @@
-#ifndef _PYC_MODULE_H
+﻿#ifndef _PYC_MODULE_H
 #define _PYC_MODULE_H
 
 #include "pyc_code.h"

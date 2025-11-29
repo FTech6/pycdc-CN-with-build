@@ -1,4 +1,4 @@
-#ifndef _PYC_NUMERIC_H
+﻿#ifndef _PYC_NUMERIC_H
 #define _PYC_NUMERIC_H
 
 #include "pyc_object.h"

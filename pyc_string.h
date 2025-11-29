@@ -1,4 +1,4 @@
-#ifndef _PYC_STRING_H
+﻿#ifndef _PYC_STRING_H
 #define _PYC_STRING_H
 
 #include "pyc_object.h"

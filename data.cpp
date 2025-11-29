@@ -1,22 +1,22 @@
-#include "data.h"
+ï»¿#include "data.h"
 #include <cstdarg>
 #include <cstdio>
 #include <cstring>
 #include <windows.h>
 
-// Ìí¼Ó±àÂë×ª»»º¯Êı
+// æ·»åŠ ç¼–ç è½¬æ¢å‡½æ•°
 namespace {
 
 std::string toUTF8(const std::string& str) {
     if (str.empty()) return str;
     
-    // ¼ì²âÊÇ·ñÎªºÏ·¨ UTF-8
+    // æ£€æµ‹æ˜¯å¦ä¸ºåˆæ³• UTF-8
     int length = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, str.c_str(), -1, nullptr, 0);
     if (length > 0) {
-        return str; // ÒÑ¾­ÊÇ UTF-8
+        return str; // å·²ç»æ˜¯ UTF-8
     }
     
-    // ³¢ÊÔ GB18030 ×ª»»
+    // å°è¯• GB18030 è½¬æ¢
     int wlen = MultiByteToWideChar(54936, 0, str.c_str(), -1, nullptr, 0);
     if (wlen > 0) {
         wchar_t* wbuf = new wchar_t[wlen];
@@ -36,7 +36,7 @@ std::string toUTF8(const std::string& str) {
         delete[] wbuf;
     }
     
-    // ³¢ÊÔ GBK
+    // å°è¯• GBK
     wlen = MultiByteToWideChar(936, 0, str.c_str(), -1, nullptr, 0);
     if (wlen > 0) {
         wchar_t* wbuf = new wchar_t[wlen];
@@ -56,7 +56,7 @@ std::string toUTF8(const std::string& str) {
         delete[] wbuf;
     }
     
-    // »ØÍËµ½ Latin-1 ±£Õæ×ª»»
+    // å›é€€åˆ° Latin-1 ä¿çœŸè½¬æ¢
     std::string result;
     for (unsigned char c : str) {
         if (c <= 0x7F) {
@@ -176,11 +176,11 @@ int formatted_printv(std::ostream& stream, const char* format, va_list args)
     int result = vsnprintf(buffer, sizeof(buffer), format, args);
     
     if (result >= 0) {
-        // ¶ÔÊä³ö½øĞĞ±àÂë×ª»»
+        // å¯¹è¾“å‡ºè¿›è¡Œç¼–ç è½¬æ¢
         std::string converted = toUTF8(buffer);
         stream << converted;
     } else {
-        // Èç¹û¸ñÊ½»¯Ê§°Ü£¬Ö±½ÓÊä³öÔ­Ê¼¸ñÊ½×Ö·û´®£¨½øĞĞ±àÂë×ª»»£©
+        // å¦‚æœæ ¼å¼åŒ–å¤±è´¥ï¼Œç›´æ¥è¾“å‡ºåŸå§‹æ ¼å¼å­—ç¬¦ä¸²ï¼ˆè¿›è¡Œç¼–ç è½¬æ¢ï¼‰
         stream << toUTF8(format);
     }
     

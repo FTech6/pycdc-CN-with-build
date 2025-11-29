@@ -1,4 +1,4 @@
-#include "pyc_string.h"
+﻿#include "pyc_string.h"
 #include "pyc_module.h"
 #include "data.h"
 #include <stdexcept>

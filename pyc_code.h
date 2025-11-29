@@ -1,4 +1,4 @@
-#ifndef _PYC_CODE_H
+﻿#ifndef _PYC_CODE_H
 #define _PYC_CODE_H
 
 #include "pyc_sequence.h"

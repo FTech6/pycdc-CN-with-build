@@ -1,4 +1,4 @@
-# Decompyle++ 汉化版(带有适用于 Windows 平台的可执行的已编译版本的程序(*.exe))
+﻿# Decompyle++ 汉化版(带有适用于 Windows 平台的可执行的已编译版本的程序(*.exe))
 **Python 字节码反汇编器/反编译器**
 
 本仓库提供 Decompyle++ (pycdc) 项目的完整汉化版本，包含源代码汉化和预编译的可执行文件。

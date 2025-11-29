@@ -1,11 +1,11 @@
-#ifndef UTF8OUT_STREAM_H
+ï»¿#ifndef UTF8OUT_STREAM_H
 #define UTF8OUT_STREAM_H
 
 #include <iostream>
 #include <string>
 #include <windows.h>
 
-// Windows Æ½Ì¨µÄ UTF-8 Êä³öÁ÷°ü×°Æ÷
+// Windows å¹³å°çš„ UTF-8 è¾“å‡ºæµåŒ…è£…å™¨
 class utf8out_stream : public std::ostream {
 private:
     class utf8_streambuf : public std::streambuf {
@@ -16,13 +16,13 @@ private:
         std::string toUTF8(const std::string& str) {
             if (str.empty()) return str;
             
-            // ¼ì²âÊÇ·ñÎªºÏ·¨ UTF-8
+            // æ£€æµ‹æ˜¯å¦ä¸ºåˆæ³• UTF-8
             int length = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, str.c_str(), -1, nullptr, 0);
             if (length > 0) {
                 return str;
             }
             
-            // ³¢ÊÔ GB18030
+            // å°è¯• GB18030
             int wlen = MultiByteToWideChar(54936, 0, str.c_str(), -1, nullptr, 0);
             if (wlen > 0) {
                 wchar_t* wbuf = new wchar_t[wlen];
@@ -42,7 +42,7 @@ private:
                 delete[] wbuf;
             }
             
-            // ³¢ÊÔ GBK
+            // å°è¯• GBK
             wlen = MultiByteToWideChar(936, 0, str.c_str(), -1, nullptr, 0);
             if (wlen > 0) {
                 wchar_t* wbuf = new wchar_t[wlen];
@@ -62,7 +62,7 @@ private:
                 delete[] wbuf;
             }
             
-            // »ØÍËµ½ Latin-1 ±£Õæ×ª»»
+            // å›é€€åˆ° Latin-1 ä¿çœŸè½¬æ¢
             std::string result;
             for (unsigned char c : str) {
                 if (c <= 0x7F) {
@@ -80,7 +80,7 @@ private:
             if (c != EOF) {
                 m_buffer += static_cast<char>(c);
                 if (c == '\n' || m_buffer.size() >= 1024) {
-                    // »º³åÇøÂú»òÓöµ½»»ĞĞ£¬½øĞĞ±àÂë×ª»»²¢Êä³ö
+                    // ç¼“å†²åŒºæ»¡æˆ–é‡åˆ°æ¢è¡Œï¼Œè¿›è¡Œç¼–ç è½¬æ¢å¹¶è¾“å‡º
                     m_os << toUTF8(m_buffer);
                     m_buffer.clear();
                 }
@@ -105,7 +105,7 @@ private:
 public:
     utf8out_stream(std::ostream& os) : std::ostream(&m_buf), m_buf(os) {}
     
-    // ÖØÔØ operator<< ÒÔÈ·±£×Ö·û´®²ÎÊı¾­¹ı±àÂë×ª»»
+    // é‡è½½ operator<< ä»¥ç¡®ä¿å­—ç¬¦ä¸²å‚æ•°ç»è¿‡ç¼–ç è½¬æ¢
     utf8out_stream& operator<<(const char* str) {
         if (str) {
             std::ostream::operator<<(str);
